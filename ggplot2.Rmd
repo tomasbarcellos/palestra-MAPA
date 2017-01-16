@@ -1,0 +1,238 @@
+---
+title: ggplot2
+output:
+  beamer_presentation: default
+  html_document: 
+    fig_height: 6
+    fig_width: 9
+---
+
+```{r setup, include=FALSE}
+library(ggplot2)
+options(scipen = 999)
+```
+
+## Exemplo
+
+
+![Remuneração por sexo e cor](imagens/remunera.png)
+
+
+## Exemplo
+
+```{r diamonds, echo=FALSE}
+ggplot(ggplot2::mpg, aes(x = displ, y = hwy, col = factor(cyl))) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  geom_smooth(col = "gray60", group = 1,
+              method = "lm", se = FALSE, alpha = 0.5)
+```
+
+## Concepção do ggplot2
+
+O ggplot2 é mais do que um pacote para fazer gráficos; ele é uma tentativa (muito bem sucedida) trazer para o dia-a-dia dos técnicos uma **gramática dos gráficos**.
+
+
+#### Por que uma **gramática** dos gráficos?
+
+Através dela podemos definir **sistematicamente** quais são os componentes de um gráficos e como eles se interelacionam.
+
+Veja mais informações em [http://docs.ggplot2.org/](http://docs.ggplot2.org/current/).
+
+## A gramática dos gráficos
+
+|       elemento       |        exemplos       |
+|:--------------------:|:---------------------:|
+|  dados (informação)* | seguro, fiscalizações |
+|   **(a)es**tética*   |      cor, formato     |
+|    **geom**etrias*   |      barra, ponto     |
+|    e**stat**ísticas  |    mediana, máximo    |
+|     **facet**as      |        facetas        |
+|   **coord**enadas    |    polar, cartesiana  |
+|     **t(h)emas**     |      eixos, título    |
+
+'* aspéctos estéticos impressindíveis para criar um gráfico no ggplot2
+
+## A camada de dados
+
+A primeira etapa da construção de um gráfico é ter os dados que serão representados graficamente. Vamos carregar os dados dos vínculos da RAIS em 2014 para Santa Catarina
+
+```{r, carga}
+vinculos_2014 <- readRDS('Microdados/vinculos_SC_2014.RDS')
+vinculos_2014 <- as.data.frame(vinculos_2014) 
+                 # Para tirar a classe data.table,
+                 # não apresentada neste curso
+
+vinculos_2014 <- vinculos_2014[, c("Idade", "Mês Admissão",
+                         "Raça Cor" , "Sexo Trabalhador",
+                         "Vl Remun Média Nom", "Qtd Hora Contr")]
+```
+
+
+## Ainda os dados
+
+Ainda precisamos melhorar um pouco a forma como os dados chegaram. Idade poderia ser mais útil em faixas; Mês Admissão, Cor e Sexo são variáveis categóricas.
+
+```{r transforma, warning=FALSE, message = FALSE}
+library(dplyr)
+vinculos_2014 <- vinculos_2014 %>%
+  mutate(Admissão = factor(`Mês Admissão`,
+                           labels = c('Não admitido ano', 'Jan', 'Fev',
+                                      'Mar', 'Abr', 'Mai', 'Jun', 'Jul',
+                                      'Ago', 'Set', 'Out', 'Nov', 'Dez')),
+         Cor = factor(`Raça Cor`,
+                      labels = c("Indígena", "Branca", "Preta", "Amarela",
+                                 "Parda", "Não identificado", "Ignorado")),
+         Sexo = factor(`Sexo Trabalhador`,
+                       labels = c("Masculino", "Feminino")),
+         Remuneração = as.numeric(gsub(pattern = ",", ".",
+                                       `Vl Remun Média Nom`)))
+```
+
+## Faixas de Jornadas
+
+```{r Jornada}
+vinculos_2014$Jornada <- cut(vinculos_2014$`Qtd Hora Contr`,
+                             breaks = c(-Inf, 20, 30, 40, Inf),
+                             labels = c("Até 20", "Entre 20 e 30",
+                                        "Entre 30 e 40", "Mais de 40"))
+
+set.seed(1) # semente de pseudo-aleatoriedade para reprodução
+
+# Vamos reduzir os dados para 200 observações aleatórias
+dados <- vinculos_2014[sample(1:nrow(vinculos_2014), 200), ]
+```
+
+
+## Aspectos Estéticos
+
+Aqui apenas falar da diferença entre dado e estética.
+
+## Mapeando dados na estética
+
+Imagine que você fosse desenhar um gráfico. Como você decidiria até onde deve ir a barra ou onde ficariam os pontos? O computador também precisa de critérios para decidir como representar os dados, como a idade dos trabalhadores de Santa Catarina, em um gráfico.
+
+Assim, a idade dos trabalhadores pode ser representada no eixo horizontal ou os grupos de idade podem aparecer como cores ou formato dos dados (menores de 30 triângulos, maiores quadrados).
+
+**Talvez copiar um slide do DataCamp seja meelhor**
+
+Explicar o que é mapear dados em elementos estéticos do gráfico
+
+## Atributos Estéticos
+
+É diferente **mapear** uma estética e **definir um atributo estético**. Mapear um atributo estético é dizer que a cor representa  
+Falar da diferença de atribuir uma cor ou tamanho ao gráfico e mapeá-los.
+
+## Aspectos Geométricos
+
+Além de ter dados e mapeá-los em atributos estéticos, você deve escolher com que geometrias quer aprensentar seus dados.
+
+As geometrias mais comuns são:
+
+* Pontos (diagrama de dispersão)
+
+* Barras
+
+* Linhas
+
+* Diagrama de baixa (boxplot)
+
+Vamos ver como usar estas geometrias no `ggplot2`
+
+## geom_point()
+
+
+```{r geom_point}
+ggplot(dados[dados$Remuneração < 10000, ], aes(Idade, Remuneração)) +
+  geom_point(aes(color = Jornada), size = 2, alpha = 0.6)
+```
+
+
+## geom_bar()
+
+```{r geom_bar}
+medias <- vinculos_2014 %>% group_by(Jornada, Sexo) %>%
+  summarise(Media = mean(Remuneração))
+
+ggplot(medias, aes(x = Jornada, y = Media, fill = Sexo)) +
+  geom_bar(stat = "identity")
+# gráficos de barras são geralmente usados em estatísticas sumarizadas
+```
+
+## geom_histogram()
+
+```{r geom_histogram, warning=FALSE}
+ggplot(vinculos_2014 %>% filter(Remuneração < 5000),
+       aes(x = Remuneração, fill = Sexo)) +
+  geom_histogram(binwidth = 500, alpha= 0.8) # definir qtd de intervalos(bins)
+```
+
+
+## Ou então geom_density()
+
+```{r geom_density}
+ggplot(vinculos_2014 %>% filter(Remuneração < 5000),
+       aes(x = Remuneração, fill = Sexo)) +
+  geom_density(alpha= 0.6)
+```
+
+
+## geom_line() 
+
+```{r geom_line}
+medias <- dados %>% group_by(Jornada) %>%
+  summarise(Media = mean(Remuneração))
+
+ggplot(dados[dados$Remuneração < 10000,], aes(Idade, Remuneração, col = Jornada)) +
+  geom_point(alpha = 0.6) +
+  geom_hline(aes(yintercept = Media, col = Jornada), data = medias, size = 1.5)
+```
+
+## geom_boxplot()
+
+```{r geom_boxplot}
+ggplot(vinculos_2014 %>% filter(Remuneração < 10000),
+       aes(x = Sexo, y = Remuneração, fill = Sexo)) +
+  geom_boxplot()
+```
+
+## Estatísticas
+
+Toda geometria está vinculada a alguma estatística. Esta estatística pode ser "identidade", isto é, o dados tal qual. Mas, observem, seria impossível desenhar algumas geometrias sem obter algumas estatísticas sobre os dados. O ggplot2 faz isso por trás das cenas para nós.
+
+Por exemplo, para desenhar um diagrama de caida sobre precisa saber: i) o desvio padrão, ii), a mediana, iii) os 1º e 3º quartis. Um histograma, por sua vez, precisa i) definir classes de intervalos e ii) contar a quantidade de dados nestes intervalos.
+
+Caso precisemos gerar as estatísticas, o `ggplot2` tem a família de funções `stat_*`. Vejamos um exemplo
+
+## Estatísticas
+
+```{r Estatística}
+ggplot(dados, aes(x = Idade, y = Remuneração, col = Jornada)) +
+  geom_point() +
+  stat_smooth(geom = "smooth", method = "lm", level = 0.8)
+# realizou calculos de regressão
+
+```
+
+
+## Coordenadas e Facetas
+
+```{r Facetas}
+menos_5 <- vinculos_2014[(vinculos_2014$Cor %in%
+                              c("Preta", "Branca") &
+                       vinculos_2014$Remuneração < 5000), ]
+ggplot(menos_5, aes(Remuneração, fill = Sexo)) +
+  geom_density(alpha = 0.5) + facet_wrap(~Cor, dir = "v")
+```
+
+
+## Tema
+
+```{r Tema}
+ggplot(menos_5, aes(Remuneração, fill = Sexo)) +
+  geom_density(alpha = 0.5) +   facet_wrap(~Cor, dir = "v") +
+  theme_classic() +
+  scale_y_continuous(name = "Densidade", labels = c("0", "0,05%", "0,1%", "0,15%"), minor_breaks = NULL) +
+    scale_x_continuous(labels = c("R$ 0", "R$ 1.000", "R$ 2.000", "R$ 3.000", "R$ 4.000", "R$ 5.000"), minor_breaks = NULL) + 
+  theme(legend.position = 'none')
+```
