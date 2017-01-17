@@ -1,0 +1,88 @@
+---
+title: "Dplyr"
+author: "Isidio Martins e Tomás Siervi"
+date: "15 de janeiro de 2017"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Linguagem de Programação R
+
+* Flexibilidade de criar soluções (ex: funções)
+    + Próprias do programador
+    + De outros na forma de Pacotes
+        - A comunidade do R é excepcional  
+        ![](http://blog.grio.com/wp-content/uploads/2012/09/stackoverflow.png)
+
+## Principais aspectos
+
+- Reprodutibilidade
+
+## Pacotes
+* Os Pacotes nada mais são que um conjunto de funções.
+
+* Os pacotes tornam o R especial frente os demais programas, pois estes são o meio pelo qual o programa evolui e se adpata a necessidade dos usuarios.
+
+## Operador de atribuição '<-'
+
+Explicar como funciona...
+
+## Exemplo de função
+
+A sintaxe de uma função consiste no nome de função seguindo por parenteses, dentro os inputs, por exemplo:
+
+```{r, echo=TRUE, warning=FALSE}
+toupper(x = "mapa")
+```
+
+Decorar o nome de cada função de interresse seria um esforço surreal. Para isso existem dois recursos importantes:
+
+* Uso da função Help()
+* Uso do autocomplete disponível no Rstudio
+    - Basta começar a escrever e teclar Shift
+    - Ao teclar Shift dentro da função surgirão seus argumentos
+
+## O dplyr
+
+Trata-se de um pacote disponibilizado por Hadley Wickham:
+![](https://pbs.twimg.com/profile_images/677589103710306304/m56O6Wgf.jpg)
+
+Dentre as contrbuições de HW estão os pacotes dplyr, ggplot2 e tidyr.
+
+O dplyr simplifica as tarefas de transformar um dataframe.
+
+##Instalando o dplyr
+
+Os pacotes não fazem parte do Rbase, ou seja, não vem previamente instalados. Para instalar qalquer pacote deve-se usar o seguinte comando: install.packages(). Portanto, para instalar o dplyr, deve-se dar o seguinte comando:
+
+install.packages("dplyr")
+
+É possivel tambem instalar o pacote por meio de um arquivo .zip disponivel em <https://cran.r-project.org/>.
+
+##Pipe Operator '%>%'
+
+O pipe operator esta disponivel, em sua origem, no pacote magrittr. Outros pacotes tem o magrittr como seu dependente. Ou seja, ativam esse pacote para poder operar.
+
+O pipe inverte a logica de se primeiro determinar qual o função a ser usada para depois escolher o objeto a ser tranformado. Como pode-se ver a seguir:
+
+```{r, echo=TRUE}
+library(magrittr)
+"mapa" %>% toupper()
+```
+
+Tal lógica que parte do objeto que está em analise para depois explora-lo (tranforma-lo) tem se mostrado conveiente. E o pacote dplyr é um dos que melhores fazem uso desse recurso.
+
+## Caregando tabelas no R
+
+```{r}
+library(readxl)
+PAM<-readxl::read_excel("PAM.xlsx",skip = 1)
+```
+
+
+
+
+
