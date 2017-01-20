@@ -7,6 +7,7 @@ Repositório com apresentações da palestra de 27/01/2017
 library(devtools)
 devtools::install_github("tomasbarcellos/RSIDRA")
 library(RSIDRA)
+
 cult_temp <- API_SIDRA(1612, 81, nivel = 2)
 cult_temp$cultura <- "temporária"
 cult_perm <- API_SIDRA(1613, 82, nivel = 2)
