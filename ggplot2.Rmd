@@ -1,7 +1,6 @@
 ---
 title: ggplot2
 output:
-  beamer_presentation: default
   html_document: 
     fig_height: 6
     fig_width: 9
@@ -9,6 +8,7 @@ output:
 
 ```{r setup, include=FALSE}
 library(ggplot2)
+library(knitr)
 options(scipen = 999)
 ```
 
@@ -21,7 +21,7 @@ options(scipen = 999)
 ## Exemplo
 
 ```{r diamonds, echo=FALSE}
-ggplot(ggplot2::mpg, aes(x = displ, y = hwy, col = factor(cyl))) +
+ggplot(mpg, aes(x = displ, y = hwy, col = factor(cyl))) +
   geom_point() +
   geom_smooth(method = "lm", se = FALSE) +
   geom_smooth(col = "gray60", group = 1,
@@ -55,17 +55,13 @@ Veja mais informações em [http://docs.ggplot2.org/](http://docs.ggplot2.org/cu
 
 ## A camada de dados
 
-A primeira etapa da construção de um gráfico é ter os dados que serão representados graficamente. Vamos carregar os dados dos vínculos da RAIS em 2014 para Santa Catarina
+A primeira etapa da construção de um gráfico é ter os dados que serão representados graficamente. Vamos carregar os dados da Pesquisa Agrícola Municipal (PAM) agregados no nível de grandes regiões para os anos entre 1990 e 2015.
 
 ```{r, carga}
-vinculos_2014 <- readRDS('Microdados/vinculos_SC_2014.RDS')
-vinculos_2014 <- as.data.frame(vinculos_2014) 
-                 # Para tirar a classe data.table,
-                 # não apresentada neste curso
+# importa dados
+PAM <- readRDS('PAM.RDS')
 
-vinculos_2014 <- vinculos_2014[, c("Idade", "Mês Admissão",
-                         "Raça Cor" , "Sexo Trabalhador",
-                         "Vl Remun Média Nom", "Qtd Hora Contr")]
+# Os nomes das variáveis estão ruins
 ```
 
 
