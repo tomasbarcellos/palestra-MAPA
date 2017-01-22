@@ -1,49 +1,123 @@
 ---
 title: "Dplyr"
-author: "Isidio Martins e Tomás Siervi"
-date: "15 de janeiro de 2017"
+author: "Isidio Martins e Tomás Barcellos"
+date: "`r format(Sys.time(), '%d %B %Y')`"
 output: ioslides_presentation
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+#knitr::opts_chunk$set(echo = FALSE)
 ```
+
+## Objetivo
+
+* Apresentar pacotes que permitam o uso mais intuitivo do R para a exploração dos dados
+
+* O participante deve replicar toda a programação apresentada
+
+## Principais aspectos do R
+
+- Reprodutibilidade
+- Manutenção dos dados originais
+- Controle absoluto das alterações (ex: exclusões e imputações)
+- Baixo uso de RAM
+- Escala (looping)
+- Software Livre e Aberto
+- Flexibilidade
+- Pacotes e Comunidade
 
 ## Linguagem de Programação R
 
-* Flexibilidade de criar soluções (ex: funções)
+* Flexibilidade de criar soluções (ex: funções de limpeza de texto)
+    + Funções do R-BASE
     + Próprias do programador
     + De outros na forma de Pacotes
-        - A comunidade do R é excepcional  
-        ![](http://blog.grio.com/wp-content/uploads/2012/09/stackoverflow.png)
+* Encontrando soluções
+    + Help(),'?'
+    + '??'
+    + A comunidade do R é excepcional
+    
+    ![](http://blog.grio.com/wp-content/uploads/2012/09/stackoverflow.png)
 
-## Principais aspectos
+## Exemplo de função
 
-- Reprodutibilidade
+A sintaxe de uma função consiste no nome da função seguindo por parenteses, dentro os argumentos (inputs), por exemplo:
+
+```{r, echo=TRUE, warning=FALSE}
+toupper(x = "mapa") #Apresenta os caracteres em caixa alta
+```
+
+## Shift
+Decorar o nome de cada função ou seus argumentos seria insano. A tecla Shift ajuda a elencar o que pode ser feito.
+
+* Encontrando funções:
+    + Tecle 'me' e dopois Shift
+* Funções dentro de pacotes especificos:
+    + Tecle 'dplyr::' e depois Shift
+* Argumentos dentro de funções:
+    + Tecle 'dplyr::full_join()' e dentro dos parênteses tecle Shift
 
 ## Pacotes
 * Os Pacotes nada mais são que um conjunto de funções.
 
-* Os pacotes tornam o R especial frente os demais programas, pois estes são o meio pelo qual o programa evolui e se adpata a necessidade dos usuarios.
+* Os pacotes tornam o R especial frente os demais programas, pois estes são o meio pelo qual o programa evolui e se adpata a necessidade dos usuários.
 
-## Operador de atribuição '<-'
+##Antes do Dplyr: O _Assignment Operator_ (Operador de atribuição: '<-')
 
-Explicar como funciona...
+O R opera com objetos. Dizendo de forma simplória: "Objeto é aonde você guarda o que você quer". A sintaxe é a seguinte: à esquerda do operador da-se nome ao objeto (um texto qualquer), à direita o elemento que será inserido nele. Exemplos:
 
-## Exemplo de função
+```{r}
+qualquercoisa<-c(1,2,3)
+qualquercoisa
 
-A sintaxe de uma função consiste no nome de função seguindo por parenteses, dentro os inputs, por exemplo:
+qualquercoisa<-"mapa"
+qualquercoisa
 
-```{r, echo=TRUE, warning=FALSE}
-toupper(x = "mapa")
+qualquercoisa<-toupper(x = "mapa")
+qualquercoisa
+
+qualquercoisa<-"mapa"
+qualquercoisa<-toupper(x = qualquercoisa)
+qualquercoisa
 ```
 
-Decorar o nome de cada função de interresse seria um esforço surreal. Para isso existem dois recursos importantes:
+##Antes do Dplyr: Caregando tabelas no R
 
-* Uso da função Help()
-* Uso do autocomplete disponível no Rstudio
-    - Basta começar a escrever e teclar Shift
-    - Ao teclar Shift dentro da função surgirão seus argumentos
+Localize seu diretorio de trabalho com o comando getwd() e lá coloque os arquivos disponiveis em <https://github.com/tomasbarcellos/palestra-MAPA>.
+
+Se o interesse é o de ler dados externos estão podemos começar nosso trabalhando escrevendo 'read' e teclando shift. Surgirão varios comandos para a leitura de dados.
+
+Opinião do autor: "Sempre que possível, use o '.csv'". Apesar de mais pesado, é um formato muito seguro para guardar informação. Ademais, é lido por praticamente qualquer programa. Usemos o read.csv2().
+
+Escreva 'read.csv2("")' e clique entre as aspas e tecle shift. Surgirá uma lista de arquivos disponiveis no seu WD.
+```{r}
+PAM<-read.csv2("PAM.csv", stringsAsFactors = F)
+str(PAM)
+View(PAM)
+```
+
+##Antes do Dplyr: Caregando tabelas no R
+
+Quando os dados estiverem em '.xls' ou '.xlsx', basta usar o pacote 'readxl'.
+```{r}
+library(readxl)
+PAM<-readxl::read_excel("PAM.xlsx")
+str(PAM)
+View(PAM)
+```
+
+##Antes do Dplyr: Pipe Operator '%>%'
+
+O pipe operator esta disponivel, em sua origem, no pacote magrittr. Outros pacotes tem o magrittr como seu dependente. Ou seja, ativam esse pacote para poder operar. O pacote dplyr é um dos que melhores fazem uso desse recurso.
+
+O pipe inverte a logica de se primeiro determinar qual o função a ser usada para depois escolher o objeto a ser tranformado. Como pode-se ver a seguir:
+
+```{r, echo=TRUE}
+library(magrittr)
+"mapa" %>% toupper()
+```
+
+Tal lógica que parte do objeto que está em analise para depois explora-lo (tranforma-lo). 
 
 ## O dplyr
 
@@ -62,25 +136,113 @@ install.packages("dplyr")
 
 É possivel tambem instalar o pacote por meio de um arquivo .zip disponivel em <https://cran.r-project.org/>.
 
-##Pipe Operator '%>%'
+## Operadores b?sicos
 
-O pipe operator esta disponivel, em sua origem, no pacote magrittr. Outros pacotes tem o magrittr como seu dependente. Ou seja, ativam esse pacote para poder operar.
+|Comando                                     |Ação                                                          |
+|--------------------------------------------|--------------------------------------------------------------|
+|select(data, col.1, col.2, .)               |Selecione das variaveis existentes (colunas)                  |
+|filter(data, condition.1, condition.2, ...) |Filtra a tabela por condições                                 |
+|arrange(data, col.1, col.2, .)              |Classifica a tabela por variaveis ou outros comandos lógicos  |
+|mutate(data, newcol = .)                    |Crie novas variaveis                                          |
+|group_by() + summarize()                    |Resuma os dados por grupo                                     |
 
-O pipe inverte a logica de se primeiro determinar qual o função a ser usada para depois escolher o objeto a ser tranformado. Como pode-se ver a seguir:
+## Passo 1
 
-```{r, echo=TRUE}
-library(magrittr)
-"mapa" %>% toupper()
-```
-
-Tal lógica que parte do objeto que está em analise para depois explora-lo (tranforma-lo) tem se mostrado conveiente. E o pacote dplyr é um dos que melhores fazem uso desse recurso.
-
-## Caregando tabelas no R
+Selecione as variaveis relevantes
 
 ```{r}
-library(readxl)
-PAM<-readxl::read_excel("PAM.xlsx",skip = 1)
+sel.campos <- PAM %>%
+  select(ano_desc, regiao_desc, cultura_desc, Rendimento.médio.da.produção)
 ```
+
+Dê o comando para vizualizar: View(sel.campos)
+
+## Passo 2
+
+Filtre por ano e cultura
+
+```{r}
+fil.ano.cult <- PAM %>%
+  select(ano_desc, regiao_desc, cultura_desc, Rendimento.médio.da.produção) %>%
+  filter(ano_desc >= 2010, cultura_desc=="Abacaxi")
+```
+
+View(fil.ano.cult)
+
+## Passo 3
+
+Agrupe (desagrupe) a sua base por ano
+
+```{r}
+group.ano <- PAM %>%
+  select(ano_desc, regiao_desc, cultura_desc, Rendimento.médio.da.produção) %>%
+  filter(ano_desc >= 2010, cultura_desc=="Abacaxi") %>%
+  group_by(ano_desc)
+```
+
+View(group.ano)
+
+## Passo 4
+
+Resuma os agrupamentos no rendimento médio
+
+```{r}
+summa <- PAM %>%
+  select(ano_desc, regiao_desc, cultura_desc, Rendimento.médio.da.produção) %>%
+  filter(ano_desc >= 2010, cultura_desc=="Abacaxi") %>%
+  group_by(ano_desc) %>%
+  summarize(Rendimento_Médio = sum(Rendimento.médio.da.produção, na.rm = TRUE))
+
+View(summa)
+```
+
+## Passo 5
+
+Ordene os dados pela precipita??o de neve/Ano mensal
+
+```{r}
+feb.snow2 <- weather %>%
+  select(Year, Month, Day, Snow) %>%
+  filter(Year >= 1885, Month == 2) %>%
+  group_by(Year) %>%
+  summarize(Snow.Sum = sum(Snow, na.rm = TRUE)) %>%
+  arrange(-Snow.Sum, -Year)
+
+#View(feb.snow2)
+```
+
+## "Dividir, Aplicar e Combinar"
+
+O padr?o de an?lise que fizemos anteriormente ? bastante recorrente em an?lise de dados.
+Dentro da comunidade do R ? conhecido como "Dividir, Aplicar e Combinar" (DAC) ou, em
+ingl?s, "Split, Apply and Combine" (SAC). Neste caso espec?fico, n?s pegamos um vetor (o vetor
+de pre?os), dividimos segundo algum crit?rio (por tipo), aplicamos um fun??o em cada um dos
+grupos separadamente (no nosso caso, a m?dia) e depois combinamos os resultados novamente.
+Para quem conhece SQL, muitas dessas opera??es s?o similares ao group by, ou, para quem
+usa Excel, similar a uma tabela din?mica (mas n?o equivalentes, o conceito aqui ? mais flex?vel).
+
+## Manipulando dados - Exemplo dif?cil
+to<-read.csv2("Soja - TO - Embrapa - solo arenoso.csv", header = TRUE, stringsAsFactors = FALSE)
+
+to %>% filter(Cod_Munic==46758)
+
+View(to)
+names(to)
+
+library(dplyr)
+
+unique(to$Cod_Ciclo)
+
+TO1<-to %>% 
+  filter(Cod_Ciclo == 20) %>%
+  mutate(r = paste(formatC(decendio_inicial, width=2, flag="0"),"a",formatC(decendio_final, width=2, flag="0"))) %>%
+  select(Nome_Municipio,r) %>%
+  group_by(Nome_Municipio) %>%
+  summarise("SOLOS TIPO 1" = ifelse(length(r)==1, r[1],
+                                    paste(r[1],"+",r[2])))
+
+TO1 %>% filter(Nome_Municipio == "Taguatinga")
+write.csv2(TO1,"TO1.csv")
 
 
 
