@@ -8,52 +8,30 @@ output:
 
 ```{r setup, include=FALSE}
 library(ggplot2)
+library(dplyr)
 library(knitr)
 options(scipen = 999)
-library(RSIDRA)
 
-cult_temp <- API_SIDRA(1612, 81, nivel = 2)
-cult_temp$tipo <- "temporária"
-cult_perm <- API_SIDRA(1613, 82, nivel = 2)
-cult_perm$tipo <- "permanente"
-
-PAM <- bind_rows(cult_temp, cult_perm) %>%
-  select(ano = D1N, variavel = D2N,
-         cultura = D4N, regiao = D3N,
-         tipo, valor = V) %>%
-  filter(ano >= 1994) # remover anos com cruzeiros etc
-
-dados <- tidyr::spread(data = PAM,
-                       key = variavel,
-                       value = valor) 
-dados$`Área colhida`[is.na(dados$`Área colhida`)] <- 0
-dados$`Área destinada à colheita`[is.na(dados$`Área destinada à colheita`)] <- 0
-  
-dados <- dados %>% 
-  mutate(colhida = `Área colhida` + `Área destinada à colheita`) %>%
-  rename(plantada = `Área plantada`,
-         quantidade = `Quantidade produzida`,
-         produtividade = `Rendimento médio da produção`,
-         valor = `Valor da produção`)
-
-laranja <- dados %>% filter(cultura == "Laranja")
-feijao <- dados %>% filter(cultura == "Feijão (em grão)")
-
-feijao_e_laranja <- bind_rows(feijao, laranja)
+dados <- readRDS('amostra-PAM.RDS')
+dados <- dados %>% filter(cultura %in% c("Arroz (em casca)", "Feijão (em grão)",
+                                         "Soja (em grão)", "Milho (em grão)" ))
 ```
 
 ## Exemplo
 
-
-![Remuneração por sexo e cor](imagens/remunera.png)
+```{r}
+ggplot(dados, aes(x = cultura, y = produtividade, fill = cultura)) +
+  geom_violin()
+```
 
 
 ## Exemplo
 
 ```{r diamonds, echo=FALSE}
-ggplot(feijao_e_laranja, aes(x = produtividade, y = colhida)) +
-  geom_point(aes(size = valor, col = ano)) + 
-  facet_wrap(~cultura, ncol = 2, scales = "free_x")
+ggplot(dados, aes(x = produtividade, y = area_plantada)) +
+  geom_point(aes(size = VBP, col = regiao)) +
+  geom_smooth(se = FALSE, method = "lm") +
+  facet_wrap(~cultura, nrow = 2, scales = "free")
 ```
 
 ## Concepção do ggplot2
@@ -81,11 +59,15 @@ Veja mais informações em [http://docs.ggplot2.org/](http://docs.ggplot2.org/cu
 
 '* aspéctos estéticos impressindíveis para criar um gráfico no ggplot2
 
+## Sintaxe do ggplot2
+
+Explicar a sintaxe, papel do +, as funções aes, geom e ggplot.
+
 ## A camada de dados
 
 A primeira etapa da construção de um gráfico é ter os dados que serão representados graficamente. Vamos carregar os dados da Pesquisa Agrícola Municipal (PAM) agregados no nível de grandes regiões para os anos entre 1990 e 2015.
 
-```{r, carga}
+```{r carga, eval=FALSE}
 # importa dados
 PAM <- readRDS('PAM.RDS')
 
@@ -159,14 +141,14 @@ ggplot(feijao_e_laranja, aes(x = quantidade, y = colhida)) +
   geom_point()
 ```
 
-## geom_bar()
+## geom_col()
 
 ```{r geom_bar}
 medias <- feijao_e_laranja %>% group_by(cultura) %>%
   summarise(area_media = mean(colhida))
 
 ggplot(medias, aes(x = cultura, y = area_media)) +
-  geom_bar(stat = "identity", position = 'dodge')
+  geom_col()
 # gráficos de barras são geralmente usados em estatísticas sumarizadas
 ```
 
@@ -215,7 +197,8 @@ Caso precisemos gerar as estatísticas, o `ggplot2` tem a família de funções 
 ## Estatísticas
 
 ```{r Estatística}
-ggplot(dados, aes(x = Idade, y = Remuneração, col = Jornada)) +
+ggplot(feijao_e_laranja, 
+       aes(x = produtividade, y = valor, col = cultura)) +
   geom_point() +
   stat_smooth(geom = "smooth", method = "lm", level = 0.8)
 # realizou calculos de regressão
@@ -226,21 +209,12 @@ ggplot(dados, aes(x = Idade, y = Remuneração, col = Jornada)) +
 ## Coordenadas e Facetas
 
 ```{r Facetas}
-menos_5 <- vinculos_2014[(vinculos_2014$Cor %in%
-                              c("Preta", "Branca") &
-                       vinculos_2014$Remuneração < 5000), ]
-ggplot(menos_5, aes(Remuneração, fill = Sexo)) +
-  geom_density(alpha = 0.5) + facet_wrap(~Cor, dir = "v")
+
 ```
 
 
 ## Tema
 
 ```{r Tema}
-ggplot(menos_5, aes(Remuneração, fill = Sexo)) +
-  geom_density(alpha = 0.5) +   facet_wrap(~Cor, dir = "v") +
-  theme_classic() +
-  scale_y_continuous(name = "Densidade", labels = c("0", "0,05%", "0,1%", "0,15%"), minor_breaks = NULL) +
-    scale_x_continuous(labels = c("R$ 0", "R$ 1.000", "R$ 2.000", "R$ 3.000", "R$ 4.000", "R$ 5.000"), minor_breaks = NULL) + 
-  theme(legend.position = 'none')
+
 ```
