@@ -47,15 +47,15 @@ A sintaxe de uma função consiste no nome da função seguindo por parenteses, 
 toupper(x = "mapa") #Apresenta os caracteres em caixa alta
 ```
 
-## Shift
-Decorar o nome de cada função ou seus argumentos seria insano. A tecla Shift ajuda a elencar o que pode ser feito.
+## Tab
+Decorar o nome de cada função ou seus argumentos seria insano. A tecla Tab ajuda a elencar o que pode ser feito.
 
 * Encontrando funções:
-    + Tecle 'me' e dopois Shift
+    + Tecle 'me' e dopois Tab
 * Funções dentro de pacotes especificos:
-    + Tecle 'dplyr::' e depois Shift
+    + Tecle 'dplyr::' e depois Tab
 * Argumentos dentro de funções:
-    + Tecle 'dplyr::full_join()' e dentro dos parênteses tecle Shift
+    + Tecle 'dplyr::full_join()' e dentro dos parênteses tecle Tab
 
 ## Pacotes
 * Os Pacotes nada mais são que um conjunto de funções.
