@@ -36,19 +36,6 @@ dados <- PAM %>% spread(key = Variável,
   select(-row) %>% 
   filter(Ano >= 1994) # remover anos com cruzeiros etc
 
-dados$Ano <- as.numeric(dados$Ano)
-
-subst_na <- function(x, substituto) {
-  xx <- x
-  xx[is.na(xx)] <- substituto
-  xx
-}
-
-dados <- structure(
-  lapply(dados, subst_na, 0), class = "data.frame",
-  row.names = seq_len(nrow(dados)), names = names(dados)
-)
-
 dados <- dados %>% 
   rename(regiao = `Grande Região`,
          area_colhida = `Área colhida`,
