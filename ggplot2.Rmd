@@ -1,7 +1,7 @@
 ---
 title: ggplot2
 output:
-  ioslides_presentation: 
+  html_document: 
     fig_height: 6
     fig_width: 9
 ---
@@ -24,9 +24,12 @@ dados <- dados %>% filter(cultura %in% c("Arroz (em casca)", "Feijão (em grão)
 
 ## Exemplo
 
-```{r}
+```{r, echo = FALSE}
 ggplot(dados, aes(x = cultura, y = produtividade, fill = cultura)) +
-  geom_violin(draw_quantiles = 0.5)
+  geom_violin(draw_quantiles = 0.5) + 
+  theme_minimal() + 
+  labs(title = "Distribuição da produtividade agrícola por cultura", x = "",
+       y = "Produtividade (Kg/Ha)", fill = "")
 ```
 
 
@@ -39,7 +42,7 @@ ggplot(dados, aes(x = cultura, y = produtividade, fill = cultura)) +
 <!--   facet_wrap(~cultura, nrow = 2, scales = "free") -->
 <!-- ``` -->
 
-## Por que uma **gramática** dos gráficos?
+## Para que estudar visualização de dados?
 
 ### Quarteto de Anscombe
 
@@ -47,7 +50,7 @@ ggplot(dados, aes(x = cultura, y = produtividade, fill = cultura)) +
 kable(anscombe[, c(1,5,2,6,3,7,4,8)])
 ```
 
-## Por que uma **gramática** dos gráficos?
+## Para que estudar visualização de dados?
 
 ### Quarteto de Anscombe
 
@@ -60,7 +63,7 @@ ggplot(anscombe_tidy, aes(x,y)) +
 
 ## Concepção do ggplot2
 
-O ggplot2 é mais do que um pacote para fazer gráficos; ele é uma tentativa (muito bem sucedida) trazer para o dia-a-dia dos técnicos uma **gramática dos gráficos**.
+O ggplot2 é mais do que um pacote para fazer gráficos; ele é uma tentativa (muito bem sucedida) trazer para o dia-a-dia dos técnicos uma **gramática dos gráficos em camadas**.
 
 
 #### Por que uma **gramática** dos gráficos?
@@ -89,13 +92,24 @@ Veja mais informações em [http://docs.ggplot2.org/](http://docs.ggplot2.org/cu
 
 ## Sintaxe do ggplot2
 
-Explicar a sintaxe, papel do +, as funções aes, geom e ggplot.
+```{r, eval = FALSE}
+ggplot(um_data_frame, aes(estética1 = variável1,
+                  estética2 = variável2,
+                  estética3 = variável3)) +
+  geometria(estética4 = "atributo1") +
+  facetas +
+  tema
+```
+
+Note que cada função cria uma (ou mais) camadas e que usamos o `+` para ir adicionando camadas.
 
 ## A camada de dados
 
-A primeira etapa da construção de um gráfico é ter os dados que serão representados graficamente. Vamos carregar os dados da Pesquisa Agrícola Municipal (PAM) agregados no nível de grandes regiões para os anos entre 1990 e 2015.
+A primeira etapa da construção de um gráfico é ter os dados que serão representados graficamente. 
 
-```{r carga, eval=FALSE}
+Vamos carregar os dados da Pesquisa Agrícola Municipal (PAM) agregados no nível de grandes regiões para os anos entre 1990 e 2015.
+
+```{r carga}
 # importa dados
 dados <- readRDS('amostra-PAM.RDS')
 ```
@@ -103,12 +117,18 @@ dados <- readRDS('amostra-PAM.RDS')
 
 ## Ainda os dados
 
-Ainda precisamos melhorar um pouco a forma como os dados chegaram. O arquivo "amostra-PAM.RDS" traz dados de `r length(unique(dados$cultura))` culturas diferentes e é difícil visualizar tantas variáveis categóricas. Para faciliar as coisas vamos reduzir nossos dados apenas para as culturas de **arroz**, **feijão**, **milho** e **soja** (grãos) com o código abaixo. 
+Ainda precisamos melhorar um pouco a forma como os dados chegaram. O arquivo "amostra-PAM.RDS" traz dados de `r length(unique(dados$cultura))` culturas diferentes e é difícil visualizar tantas variáveis categóricas.
 
-```{r transforma, warning=FALSE, message = FALSE}
-dados <- dados %>% filter(cultura %in% c("Arroz (em casca)", "Feijão (em grão)",
-                                         "Soja (em grão)", "Milho (em grão)" ))
+Para faciliar as coisas vamos reduzir nossos dados apenas para as culturas de **arroz**, **feijão**, **milho** e **soja** (grãos) com o código abaixo. 
+
+```{r transforma}
+dados <- dados %>% 
+  filter(cultura %in% c("Arroz (em casca)", "Feijão (em grão)",
+                        "Soja (em grão)", "Milho (em grão)" ))
+
 dados2 <- dados %>% filter(cultura == "Feijão (em grão)")
+
+dados3 <- filter(dados2, regiao == "Centro-Oeste")
 ```
 
 ## Aspectos Estéticos
@@ -127,9 +147,16 @@ linetype | Tipo (padrão) da linhas
 labels | Texto no gráfico ou nos eixos
 shape | Forma
 
+## Representando dados
+
+Imagine que você fosse desenhar um gráfico. Como você decidiria até onde deve ir a barra ou onde ficariam os pontos? O computador também precisa de critérios para decidir como representar os dados, como o Valor Bruto da Produção agropecuária (VBP) de uma região, em um gráfico.
+
+Assim, o VBP pode ser representado no eixo vertical ou os faixas de valores podem aparecer como cores ou formato dos dados (até R$ 50 milhões triângulos, entre 50 e 100 quadrados, maiores que 100 circulos).
+
+
 ## Atributos Estéticos
 
-É diferente **mapear** uma estética e **definir um atributo estético**. Mapear uma variável em uma estética é dizer que a cor **vermelha** representa o Centro-Oeste e a cor **azul** o Sudeste. Isto é diferente de definir a cor de pontos ou barras com a cor **verde**. 
+É diferente **mapear** uma estética e **atribuir um valor** a um aspecto estético. Mapear uma variável em uma estética é dizer que a cor **vermelha** representa o Centro-Oeste e a cor **azul** o Sudeste. Isto é diferente de definir a cor de pontos ou barras com a cor **verde**. 
 
 ## Atributos Estéticos
 
@@ -140,23 +167,28 @@ ggplot(dados2 , aes(x = area_plantada, y = quantidade)) +
   geom_point(col = "red")
 ```
 
-## Mapeando dados na estética
-
-Imagine que você fosse desenhar um gráfico. Como você decidiria até onde deve ir a barra ou onde ficariam os pontos? O computador também precisa de critérios para decidir como representar os dados, como o Valor Bruto da Produção agropecuária (VBP) de uma região, em um gráfico.
-
-Assim, o VBP pode ser representado no eixo vertical ou os faixas de valores podem aparecer como cores ou formato dos dados (até R$ 50 milhões triângulos, entre 50 e 100 quadrados, maiores que 100 circulos).
+## Atributos Estéticos
 
 ### Mapear a região na cor
 
 ```{r}
-ggplot(dados2 , aes(x = area_plantada, y = quantidade) +
-  geom_point(aes(col = regiao)))
+ggplot(dados2 , aes(x = area_plantada, y = quantidade)) +
+  geom_point(aes(col = regiao))
+```
+
+## Atributos Estéticos
+
+### Mapear VBP no tamanho
+
+```{r}
+ggplot(dados2 , aes(x = area_plantada, y = quantidade)) +
+  geom_point(aes(size = VBP), col = "darkgreen", alpha = 0.5)
 ```
 
 ## Aspectos Estéticos - Variáveis contínuas
 
 Estética | Descrição
-----------|----------------------------------------
+---------|----------------------------------------
 x | Eixo horizontal
 y | Eixo vertical
 colour | Cor dos pontos ou das linhas das formas
@@ -169,6 +201,14 @@ alpha |Transparência
 ![](decod_continuas.png)
 
 Fonte: www.datacamp.com
+
+## Atributos Estéticos - Variáveis contínuas
+
+
+```{r}
+ggplot(dados3, aes(x = Ano, y = area_plantada, col = produtividade)) +
+  geom_point()
+```
 
 ## Aspectos Estéticos - Variáveis categóricas
 
@@ -188,6 +228,15 @@ shape | Forma
 
 Fonte: www.datacamp.com
 
+## Aspectos Estéticos - Variáveis categóricas
+
+```{r}
+ggplot(dados, aes(x = produtividade, 
+                  y = (VBP/area_plantada), col = cultura)) +
+  geom_point()
+```
+
+
 ## Aspectos Geométricos
 
 Além de ter dados e mapeá-los em atributos estéticos, você deve escolher com que geometrias quer aprensentar seus dados.
@@ -206,6 +255,8 @@ Vamos ver como usar estas geometrias no `ggplot2`.
 
 ## geom_point()
 
+Ajudam compreender relação entre variáveis e suas distribuições.
+
 ```{r geom_point}
 ggplot(dados, aes(x = quantidade, y = area_plantada)) +
   geom_point()
@@ -213,13 +264,24 @@ ggplot(dados, aes(x = quantidade, y = area_plantada)) +
 
 ## geom_col()
 
+Gráficos de barras são geralmente usados em estatísticas sumarizadas.
+
 ```{r geom_bar}
 medias <- dados %>% group_by(cultura) %>%
   summarise(area_media = mean(area_plantada))
 
 ggplot(medias, aes(x = cultura, y = area_media)) +
   geom_col()
-# gráficos de barras são geralmente usados em estatísticas sumarizadas
+```
+
+## geom_line() 
+
+Utilizadas para relacionar dados, dar ideia de evolução
+
+```{r geom_line}
+# ggplot(dados %>% filter(regiao == "Centro-Oeste"),
+#        aes(Ano, area_plantada, col = cultura)) +
+#   geom_path(group = 1)
 ```
 
 ## geom_histogram()
@@ -240,51 +302,10 @@ ggplot(dados,
 ```
 
 
-## geom_line() 
-
-```{r geom_line}
-ggplot(dados,
-       aes(Ano, area_plantada, col = regiao)) +
-  geom_path()
-```
-
 ## geom_boxplot()
 
 ```{r geom_boxplot}
 ggplot(dados,
        aes(x = cultura, y = produtividade)) +
   geom_boxplot(aes(fill = cultura))
-```
-
-## Estatísticas
-
-Toda geometria está vinculada a alguma estatística. Esta estatística pode ser "identidade", isto é, o dados tal qual. Mas, observem, seria impossível desenhar algumas geometrias sem obter algumas estatísticas sobre os dados. O ggplot2 faz isso por trás das cenas para nós.
-
-Por exemplo, para desenhar um diagrama de caida sobre precisa saber: i) o desvio padrão, ii), a mediana, iii) os 1º e 3º quartis. Um histograma, por sua vez, precisa i) definir classes de intervalos e ii) contar a quantidade de dados nestes intervalos.
-
-Caso precisemos gerar as estatísticas, o `ggplot2` tem a família de funções `stat_*`. Vejamos um exemplo
-
-## Estatísticas
-
-```{r Estatística}
-ggplot(dados, 
-       aes(x = produtividade, y = VBP, col = cultura)) +
-  geom_point() +
-  stat_smooth(geom = "smooth", method = "lm", se = FALSE)
-# realizou calculos de regressão
-
-```
-
-
-## Coordenadas e Facetas
-
-```{r Facetas}
-
-```
-
-
-## Tema
-
-```{r Tema}
-
 ```
