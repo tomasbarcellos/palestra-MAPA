@@ -1,42 +1,46 @@
 ---
-title: "Dplyr"
+title: "dplyr"
 author: "Isidio Martins e Tomás Barcellos"
 date: "`r format(Sys.time(), '%d %B %Y')`"
 output: ioslides_presentation
 ---
 
-```{r setup, include=FALSE}
-#knitr::opts_chunk$set(echo = FALSE)
+```{r setup, include=FALSE, echo=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(magrittr)
+library(antitrust)
 ```
 
 ## Objetivo
 
-* Apresentar pacotes que permitam o uso mais intuitivo do R para a exploração dos dados
+* Apresentar pacotes para a exploração dos dados que permitam o uso mais intuitivo do R
 
-* O participante deve replicar toda a programação apresentada
+* O método é dinâmico: O participante deve replicar toda a programação apresentada
 
 ## Principais aspectos do R
 
+- Múltiplas ferramentas de análise no mesmo ambiente com a mesma linguagem (ex: mapas e regressões)
+- Controle de alterações (ex: exclusões e imputações) sem alterar os dados originais
 - Reprodutibilidade
-- Manutenção dos dados originais
-- Controle absoluto das alterações (ex: exclusões e imputações)
-- Baixo uso de RAM
 - Escala (looping)
-- Software Livre e Aberto
+- Software Livre e Aberto com baixo uso de RAM
+- Pacotes: Nada mais são que um conjunto de funções
+      + Estes são o meio pelo qual o programa evolui e se adapta a necessidade dos usuários.
 - Flexibilidade
-- Pacotes e Comunidade
+- Comunidade (múltiplas formações acadêmicas)
 
 ## Linguagem de Programação R
 
-* Flexibilidade de criar soluções (ex: funções de limpeza de texto)
-    + Funções do R-BASE
-    + Próprias do programador
-    + De outros na forma de Pacotes
+Não se tratam de funções inalteraveis, tudo pode ser reformulado. Observe o código da função que calcula o Índice de Hirschman-Herfindahl de concentração de mercado disponível no pacote antitrust, dê o comando (sem parenteses):
+```{r eval=FALSE}
+antitrust::HHI
+```
+
+* No R temos funções proprias do R-BASE, próprias do programador e de outros na forma de Pacotes
 * Encontrando soluções
-    + Help(),'?'
-    + '??'
-    + A comunidade do R é excepcional
-    
+    + Help(),'?' e '??'
+    + A comunidade do R é excepcional  
     ![](http://blog.grio.com/wp-content/uploads/2012/09/stackoverflow.png)
 
 ## Exemplo de função
@@ -47,204 +51,303 @@ A sintaxe de uma função consiste no nome da função seguindo por parenteses, 
 toupper(x = "mapa") #Apresenta os caracteres em caixa alta
 ```
 
-## Tab
-Decorar o nome de cada função ou seus argumentos seria insano. A tecla Tab ajuda a elencar o que pode ser feito.
+## Shift
+Decorar o nome de cada função ou seus argumentos seria insano. A tecla Shift ajuda a elencar o que pode ser feito.
 
 * Encontrando funções:
-    + Tecle 'me' e dopois Tab
-* Funções dentro de pacotes especificos:
-    + Tecle 'dplyr::' e depois Tab
+    + Tecle 'me' e depois Shift
+* Funções dentro de pacotes específicos:
+    + Tecle 'dplyr::' e depois Shift
 * Argumentos dentro de funções:
-    + Tecle 'dplyr::full_join()' e dentro dos parênteses tecle Tab
+    + Tecle 'dplyr::full_join()' e dentro dos parênteses tecle Shift
 
-## Pacotes
-* Os Pacotes nada mais são que um conjunto de funções.
-
-* Os pacotes tornam o R especial frente os demais programas, pois estes são o meio pelo qual o programa evolui e se adpata a necessidade dos usuários.
-
-##Antes do Dplyr: O _Assignment Operator_ (Operador de atribuição: '<-')
-
-O R opera com objetos. Dizendo de forma simplória: "Objeto é aonde você guarda o que você quer". A sintaxe é a seguinte: à esquerda do operador da-se nome ao objeto (um texto qualquer), à direita o elemento que será inserido nele. Exemplos:
-
+##Antes do `dplyr`: O _Assignment Operator_ (Operador de atribuição: '<-')
+O R opera com objetos. "Objeto é aonde você guarda o que quer". A sintaxe é: à esquerda do operador ("<-") dá-se nome ao objeto (um texto qualquer), à direita o elemento a ser inserido nele. Exemplos:
 ```{r}
 qualquercoisa<-c(1,2,3)
 qualquercoisa
-
 qualquercoisa<-"mapa"
 qualquercoisa
+```
 
+##Antes do `dplyr`: O _Assignment Operator_ (Operador de atribuição: '<-')
+
+Mais exemplos...
+
+```{r}
 qualquercoisa<-toupper(x = "mapa")
 qualquercoisa
-
-qualquercoisa<-"mapa"
-qualquercoisa<-toupper(x = qualquercoisa)
+qualquercoisa<-"mapa" #Podemos guardar em um objeto...
+qualquercoisa<-toupper(x = qualquercoisa) # ....e depois realizar a operação
 qualquercoisa
 ```
 
-##Antes do Dplyr: Caregando tabelas no R
+##Antes do `dplyr`: Caregando tabelas no R
 
-Localize seu diretorio de trabalho com o comando getwd() e lá coloque os arquivos disponiveis em <https://github.com/tomasbarcellos/palestra-MAPA>.
+Localize seu diretório de trabalho com o comando `getwd()` e lá coloque os arquivos disponíveis em <https://github.com/tomasbarcellos/palestra-MAPA>.
 
-Se o interesse é o de ler dados externos estão podemos começar nosso trabalhando escrevendo 'read' e teclando shift. Surgirão varios comandos para a leitura de dados.
+Se o interesse é o de ler dados externos estão começe escrevendo 'read' e teclando Shift. Surgirão várias funções para a leitura.
 
-Opinião do autor: "Sempre que possível, use o '.csv'". Apesar de mais pesado, é um formato muito seguro para guardar informação. Ademais, é lido por praticamente qualquer programa. Usemos o read.csv2().
+Opinião do autor: "Sempre que possível, use o ".csv". Apesar de mais pesado, é mais seguro para guardar informação e é lido por praticamente qualquer programa. Usemos o `read.csv2()`.
 
-Escreva 'read.csv2("")' e clique entre as aspas e tecle shift. Surgirá uma lista de arquivos disponiveis no seu WD.
+##Antes do `dplyr`: Caregando tabelas
+
+Escreva `read.csv2("")` e clique entre as aspas e tecle shift. Surgirá uma lista de arquivos disponíveis no seu WD.
 ```{r}
-PAM<-read.csv2("PAM.csv", stringsAsFactors = F)
-str(PAM)
-View(PAM)
+PAM<-read.csv2("PAM.csv", stringsAsFactors = F) 
+#Sempre ponha stringsAsFactors = F, até o dia em que souber usar.
+str(PAM) 
+#Reparem nos nomes das variaveis, nas classes e no padrão das amostras 
+#(ver: aspas nas strings).
 ```
 
-##Antes do Dplyr: Caregando tabelas no R
+Para uma melhor viasualização da tabela carregada de o comando: `View(PAM)`
 
-Quando os dados estiverem em '.xls' ou '.xlsx', basta usar o pacote 'readxl'.
+##Antes do `dplyr`: Caregando tabelas
+
+Quando os dados estiverem em '.xls' ou '.xlsx', basta usar o pacote `readxl`.
+
 ```{r}
 library(readxl)
-PAM<-readxl::read_excel("PAM.xlsx")
-str(PAM)
-View(PAM)
+PAM2<-readxl::read_excel("PAM.xlsx")
+str(PAM2)
 ```
 
-##Antes do Dplyr: Pipe Operator '%>%'
+##Antes do `dplyr`: Pipe Operator '%>%'
 
-O pipe operator esta disponivel, em sua origem, no pacote magrittr. Outros pacotes tem o magrittr como seu dependente. Ou seja, ativam esse pacote para poder operar. O pacote dplyr é um dos que melhores fazem uso desse recurso.
+O pipe operator esta disponível no pacote `magrittr`. Outros pacotes tem o `magrittr` como seu dependente. Ou seja, carregam-no para poder operar. O pacote `dplyr` é um deles.
 
-O pipe inverte a logica de se primeiro determinar qual o função a ser usada para depois escolher o objeto a ser tranformado. Como pode-se ver a seguir:
+O pipe inverte a lógica de se primeiro determinar qual o função a ser usada para depois escolher o objeto a ser transformado. Ou seja, tal como a realidade, parte-se do objeto a ser analisado para a exploração (cálculos e transformações). 
 
 ```{r, echo=TRUE}
 library(magrittr)
 "mapa" %>% toupper()
 ```
 
-Tal lógica que parte do objeto que está em analise para depois explora-lo (tranforma-lo). 
-
-## O dplyr
+## O `dplyr`
 
 Trata-se de um pacote disponibilizado por Hadley Wickham:
 ![](https://pbs.twimg.com/profile_images/677589103710306304/m56O6Wgf.jpg)
 
-Dentre as contrbuições de HW estão os pacotes dplyr, ggplot2 e tidyr.
+Dentre as contribuições de HW estão os pacotes `dplyr`, `ggplot2` e `tidyr`.
 
-O dplyr simplifica as tarefas de transformar um dataframe.
+O `dplyr` simplifica as tarefas de transformar um dataframe.
 
-##Instalando o dplyr
+##Instalando o `dplyr`
 
-Os pacotes não fazem parte do Rbase, ou seja, não vem previamente instalados. Para instalar qalquer pacote deve-se usar o seguinte comando: install.packages(). Portanto, para instalar o dplyr, deve-se dar o seguinte comando:
+Os pacotes não vem previamente instalados. Para instalar qualquer pacote deve-se usar o comando: `install.packages()`. Portanto, para instalar o dplyr, execute: `install.packages("dplyr")`
 
-install.packages("dplyr")
+É possível também instalar o pacote por meio de um arquivo .zip disponivel em <https://cran.r-project.org/>.
 
-É possivel tambem instalar o pacote por meio de um arquivo .zip disponivel em <https://cran.r-project.org/>.
+Dê o comando `library(dplyr)` para carregar o pacote.
 
-## Operadores b?sicos
+## Operadores básicos
 
 |Comando                                     |Ação                                                          |
 |--------------------------------------------|--------------------------------------------------------------|
-|select(data, col.1, col.2, .)               |Selecione das variaveis existentes (colunas)                  |
-|filter(data, condition.1, condition.2, ...) |Filtra a tabela por condições                                 |
-|arrange(data, col.1, col.2, .)              |Classifica a tabela por variaveis ou outros comandos lógicos  |
-|mutate(data, newcol = .)                    |Crie novas variaveis                                          |
+|select(col.1, col.2, .)                     |Selecione das variáveis existentes (colunas)                  |
+|filter(condição.1, condição.2, ...)         |Filtra a tabela por condições                                 |
+|arrange(col.1, col.2, .)                    |Classifica a tabela por variáveis ou outros comandos lógicos  |
+|mutate(qualquer_nova_coluna = .)            |Crie novas variáveis                                          |
 |group_by() + summarize()                    |Resuma os dados por grupo                                     |
+
+## Exercício 1
+
+Produtividade Média da Uva por Região a partir de 2010
+
+Selecione as variáveis relevantes:
+
+```{r}
+p1 <- PAM %>% 
+  select(ano_desc, regiao_desc, cultura_desc, 
+         Rendimento.médio.da.produção)
+```
+
+O resultado esta sendo guerdado no objeto `p1` (passo 1)
 
 ## Passo 1
 
-Selecione as variaveis relevantes
+Para uma melhor vizualização dê o comando: `View(p1)`. Notem os valores `NA`.
 
-```{r}
-sel.campos <- PAM %>%
-  select(ano_desc, regiao_desc, cultura_desc, Rendimento.médio.da.produção)
+```{r echo=FALSE}
+knitr::kable(head(p1,4))
 ```
 
-Dê o comando para vizualizar: View(sel.campos)
+
+## Passo 2
+Filtre por ano e cultura:
+
+```{r}
+p2 <- PAM %>%
+  select(ano_desc, regiao_desc, cultura_desc, 
+         Rendimento.médio.da.produção) %>%
+  filter(ano_desc >= 2010, cultura_desc=="Uva")
+```
+
+Visualize com o comando: `View(p2)`
 
 ## Passo 2
 
-Filtre por ano e cultura
-
-```{r}
-fil.ano.cult <- PAM %>%
-  select(ano_desc, regiao_desc, cultura_desc, Rendimento.médio.da.produção) %>%
-  filter(ano_desc >= 2010, cultura_desc=="Abacaxi")
+```{r echo=FALSE}
+knitr::kable(head(p2,4))
 ```
-
-View(fil.ano.cult)
 
 ## Passo 3
 
-Agrupe (desagrupe) a sua base por ano
+Agrupe (desagrupe) a sua base por Região: Mas primeiro...
+
+Eis o que está sendo omitido no processo:
+
+|ID|Sexo|Idade|
+|--|----|-----|
+|01|F   |35   |
+|02|M   |20   |
+|03|M   |40   |
+|04|F   |18   |
+|05|F   |45   |
+
+## Passo 3
+
+A tabela é desgregada em duas..
+
+|ID|Sexo|Idade|
+|--|----|-----|
+|01|F   |35   |
+|04|F   |18   |
+|05|F   |45   |
+
+## Passo 3
+
+E os cálculos são realizados para cada tabela. Por exemplo, a idade média dos Sexos.
+
+|ID|Sexo|Idade|
+|--|----|-----|
+|02|M   |20   |
+|03|M   |40   |
+
+## Passo 3
+
+Enfim,
 
 ```{r}
-group.ano <- PAM %>%
-  select(ano_desc, regiao_desc, cultura_desc, Rendimento.médio.da.produção) %>%
-  filter(ano_desc >= 2010, cultura_desc=="Abacaxi") %>%
-  group_by(ano_desc)
+p3 <- PAM %>%
+  select(ano_desc, regiao_desc, cultura_desc, 
+         Rendimento.médio.da.produção) %>%
+  filter(ano_desc >= 2010, cultura_desc=="Uva") %>%
+  group_by(regiao_desc)
 ```
-
-View(group.ano)
 
 ## Passo 4
 
-Resuma os agrupamentos no rendimento médio
+Calcule o rendimento médio por agrupamento.
 
 ```{r}
-summa <- PAM %>%
-  select(ano_desc, regiao_desc, cultura_desc, Rendimento.médio.da.produção) %>%
-  filter(ano_desc >= 2010, cultura_desc=="Abacaxi") %>%
-  group_by(ano_desc) %>%
-  summarize(Rendimento_Médio = sum(Rendimento.médio.da.produção, na.rm = TRUE))
-
-View(summa)
+p4 <- PAM %>%
+  select(ano_desc, regiao_desc, cultura_desc, 
+         Rendimento.médio.da.produção) %>%
+  filter(ano_desc >= 2010, cultura_desc=="Uva") %>%
+  group_by(regiao_desc) %>%
+  summarize(Rendimento_Médio_Regional_Uva = 
+              mean(Rendimento.médio.da.produção, na.rm = TRUE))
+```
+## Passo 4
+```{r echo=FALSE}
+knitr::kable(head(p4,4))
 ```
 
 ## Passo 5
 
-Ordene os dados pela precipita??o de neve/Ano mensal
+Ordene os dados do rendimento médio de forma decrescente:
 
 ```{r}
-feb.snow2 <- weather %>%
-  select(Year, Month, Day, Snow) %>%
-  filter(Year >= 1885, Month == 2) %>%
-  group_by(Year) %>%
-  summarize(Snow.Sum = sum(Snow, na.rm = TRUE)) %>%
-  arrange(-Snow.Sum, -Year)
+p5 <- PAM %>%
+  select(ano_desc, regiao_desc, cultura_desc, 
+         Rendimento.médio.da.produção) %>%
+  filter(ano_desc >= 2010, cultura_desc=="Uva") %>%
+  group_by(regiao_desc) %>%
+  summarize(Rendimento_Médio_Regional_Uva = 
+              mean(Rendimento.médio.da.produção, na.rm = TRUE)) %>%
+  arrange(desc(Rendimento_Médio_Regional_Uva))
+```
 
-#View(feb.snow2)
+## Passo 5
+```{r echo=FALSE}
+knitr::kable(head(p5,4))
+```
+
+## Passo 5: Ordenando o objeto 4
+
+Cada novo comando dado após o pipe trabalha em cima de um novo dataframe: com menos colunas, menos linhas, agrupado por região com uma nova variavél chamada "Rendimento_Médio_Regional_Uva".
+
+Essa variável sequer existia na tabela inicial! De forma equivalente, o passo 5 pode se realizar sob a tabela encontrada no passo 4 (p4).
+
+```{r}
+p5 <- p4 %>%
+  arrange(desc(Rendimento_Médio_Regional_Uva))
+```
+
+## Passo 5: Ordenando o objeto 4
+
+```{r echo=FALSE}
+knitr::kable(head(p5,4))
 ```
 
 ## "Dividir, Aplicar e Combinar"
 
-O padr?o de an?lise que fizemos anteriormente ? bastante recorrente em an?lise de dados.
-Dentro da comunidade do R ? conhecido como "Dividir, Aplicar e Combinar" (DAC) ou, em
-ingl?s, "Split, Apply and Combine" (SAC). Neste caso espec?fico, n?s pegamos um vetor (o vetor
-de pre?os), dividimos segundo algum crit?rio (por tipo), aplicamos um fun??o em cada um dos
-grupos separadamente (no nosso caso, a m?dia) e depois combinamos os resultados novamente.
-Para quem conhece SQL, muitas dessas opera??es s?o similares ao group by, ou, para quem
-usa Excel, similar a uma tabela din?mica (mas n?o equivalentes, o conceito aqui ? mais flex?vel).
+O padrão de análise que realizamos anteriormente é recorrente. Mais conhecido como "Split, Apply and Combine" (SAC). No passo 3 dividimos o dataframe pela variável região, aplicamos uma função sobre uma das variaveis em cada parte sepradamente combinando os resultados na forma de uma nova variavel.
 
-## Manipulando dados - Exemplo dif?cil
-to<-read.csv2("Soja - TO - Embrapa - solo arenoso.csv", header = TRUE, stringsAsFactors = FALSE)
+## Exercicio 2
 
-to %>% filter(Cod_Munic==46758)
+Agora é com vocês, cheguem no resultado abaixo. Se não conhecem alguma função, usem os meios de busca elencados bem como o google com a tag [R].
 
-View(to)
-names(to)
+A quantidade produzida anual de Laranja desde 2010 na região sul:
 
-library(dplyr)
+```{r echo=FALSE}
+ex2<-
+  PAM %>% 
+  filter(regiao_desc=="Sul", ano_desc>=2010, 
+         cultura_desc=="Laranja") %>%
+  select(ano_desc,regiao_desc,cultura_desc,
+         Quantidade.produzida)
 
-unique(to$Cod_Ciclo)
+#Nada me impede de mudar a ordem dos comandos
+```
+```{r echo=FALSE}
+knitr::kable(ex2)
+```
 
-TO1<-to %>% 
-  filter(Cod_Ciclo == 20) %>%
-  mutate(r = paste(formatC(decendio_inicial, width=2, flag="0"),"a",formatC(decendio_final, width=2, flag="0"))) %>%
-  select(Nome_Municipio,r) %>%
-  group_by(Nome_Municipio) %>%
-  summarise("SOLOS TIPO 1" = ifelse(length(r)==1, r[1],
-                                    paste(r[1],"+",r[2])))
+## Exercicio 3
 
-TO1 %>% filter(Nome_Municipio == "Taguatinga")
-write.csv2(TO1,"TO1.csv")
+O coeficiente de variação (usa o google!! você terá de criar a função) das produtividades anuais da Manga, por região.
 
+```{r echo=FALSE}
+ex3<-
+  PAM %>%
+  select(ano_desc,regiao_desc,cultura_desc,
+         Rendimento.médio.da.produção) %>%
+  filter(cultura_desc=="Manga") %>%
+  group_by(regiao_desc) %>%
+  summarise(CV=sd(Rendimento.médio.da.produção)/
+              mean(Rendimento.médio.da.produção))
+```
+```{r echo=FALSE}
+knitr::kable(ex3)
+```
 
+## Exercicio 4
 
+O valor da produção no ano de 2013 para as culturas de Uva e Abacaxi:
 
-
+Dica: Para filtrar por vários valores siga o padrão: 'cultura_desc %in% c("Uva","Abacaxi")'
+```{r echo=FALSE}
+ex4<-
+  PAM %>% 
+  select(ano_desc,cultura_desc,Valor.da.produção) %>%
+  filter(cultura_desc %in% c("Uva","Abacaxi"),
+         ano_desc==2013) %>%
+  group_by(cultura_desc) %>%
+  summarise(Valor=sum(Valor.da.produção))
+```
+```{r echo=FALSE}
+knitr::kable(ex4)
+```
