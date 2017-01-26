@@ -72,7 +72,7 @@ Veja mais informações em [http://docs.ggplot2.org/](http://docs.ggplot2.org/cu
 
 ## A gramática dos gráficos
 
-![](camadas.png)
+![](imagens/camadas.png)
 
 ## A gramática dos gráficos
 
@@ -204,7 +204,7 @@ alpha |Transparência
 
 ## Aspectos Estéticos - Variáveis contínuas
 
-![](decod_continuas.png)
+![](imagens/decod_continuas.png)
 
 Fonte: www.datacamp.com
 
@@ -230,7 +230,7 @@ shape | Forma
 
 ## Atributos Estéticos - Variáveis categóricas
 
-![](decod_categoricas.png)
+![](imagens/decod_categoricas.png)
 
 Fonte: www.datacamp.com
 
