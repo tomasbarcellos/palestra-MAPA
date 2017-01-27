@@ -2,10 +2,12 @@
 title: ggplot2
 output:
     beamer_presentation:
-        slide_level: 2
-        fig_width:7
-        fig_height:4
-    slidy_presentation 
+      colortheme: crane
+      fig_height: 4
+      fig_width: 9
+      highlight: tango
+      slide_level: 2
+      theme: Malmoe
 ---
 
 ```{r setup, include=FALSE}
@@ -24,7 +26,7 @@ dados <- dados %>% filter(cultura %in% c("Arroz (em casca)", "Feijão (em grão)
                                          "Soja (em grão)", "Milho (em grão)" ))
 ```
 
-## Exemplo
+## Visualização de dados
 
 ```{r, echo = FALSE, warning = FALSE}
 ggplot(dados, aes(x = cultura, y = produtividade, fill = cultura)) +
@@ -34,28 +36,26 @@ ggplot(dados, aes(x = cultura, y = produtividade, fill = cultura)) +
        y = "Produtividade (Kg/Ha)", fill = "")
 ```
 
-## Para que estudar visualização de dados?
+# A gramática dos gráficos
 
-### Quarteto de Anscombe
+## Quarteto de Anscombe
 
 ```{r, echo = FALSE}
 kable(anscombe[, c(1,5,2,6,3,7,4,8)])
 ```
 
-## Para que estudar visualização de dados?
-
-### Quarteto de Anscombe
+## Quarteto de Anscombe
 
 ```{r,  echo = FALSE}
 ggplot(anscombe_tidy, aes(x,y)) +
   geom_point() +
-  geom_smooth(method = "lm",se = FALSE) +
+  geom_smooth(method = "lm", se = FALSE) +
   facet_wrap(~conjunto, nrow = 2) + theme_bw()
 ```
 
 ## Mas antes...
 
-O gráfico é um meio de comunicação e, como tal, deve estar atento ao seu público. É diferente preparar um **gráfico de apresentação** para o portal do ministério ou fazer um **gráfico exploratório** para você mesmo. Ambos diferem em público e também em objetivo.
+O gráfico é um meio de comunicação e, como tal, deve ser adequado ao seu público. É diferente preparar um **gráfico de apresentação** para o portal do ministério ou fazer um **gráfico exploratório** para você mesmo. Ambos diferem em público e também em objetivo.
 
 Tenha isso em mente quando for preparar os gráficos.
 
@@ -64,7 +64,7 @@ Tenha isso em mente quando for preparar os gráficos.
 O ggplot2 é mais do que um pacote para fazer gráficos; ele é uma tentativa (muito bem sucedida) trazer para o dia-a-dia dos técnicos uma **gramática dos gráficos em camadas**.
 
 
-#### Por que uma **gramática** dos gráficos?
+### Por que uma **gramática** dos gráficos?
 
 Através dela podemos definir **sistematicamente** quais são os componentes de um gráficos e como eles se interelacionam.
 
@@ -86,7 +86,7 @@ Veja mais informações em [http://docs.ggplot2.org/](http://docs.ggplot2.org/cu
 |   **coord**enadas    |    polar, cartesiana    |
 |     **t(h)emas**     |      eixos, título      |
 
-'* aspéctos estéticos impressindíveis para criar um gráfico no ggplot2
+'* aspéctos estéticos imprescindíveis para criar um gráfico no ggplot2
 
 ## Sintaxe do ggplot2
 
@@ -101,7 +101,9 @@ ggplot(um_data_frame, aes(estética1 = variável1,
 
 Note que cada função cria uma (ou mais) camadas e que usamos o `+` para ir adicionando camadas.
 
-## A camada de dados
+# A camada de dados
+
+## Carregando os dados
 
 A primeira etapa da construção de um gráfico é ter os dados que serão representados graficamente. 
 
@@ -115,19 +117,20 @@ dados <- readRDS('amostra-PAM.RDS')
 
 ## Ainda os dados
 
-Ainda precisamos melhorar um pouco a forma como os dados chegaram. O arquivo "amostra-PAM.RDS" traz dados de `r length(unique(dados$cultura))` culturas diferentes e é difícil visualizar tantas variáveis categóricas.
+O arquivo "amostra-PAM.RDS" traz dados de `r length(unique(dados$cultura))` culturas diferentes e é difícil visualizar tantas variáveis categóricas.
 
 Para faciliar as coisas vamos reduzir nossos dados apenas para as culturas de **arroz**, **feijão**, **milho** e **soja** (grãos) com o código abaixo. 
 
 ```{r transforma}
 dados <- dados %>% 
-  filter(cultura %in% c("Arroz (em casca)", "Feijão (em grão)",
-                        "Soja (em grão)", "Milho (em grão)" ))
-
-feijao <- dados %>% filter(cultura == "Feijão (em grão)")
-
+  filter(cultura %in% 
+           c("Arroz (em casca)", "Feijão (em grão)",
+             "Soja (em grão)", "Milho (em grão)" ))
+feijao <- filter(dados, cultura == "Feijão (em grão)")
 CO <- filter(dados, regiao == "Centro-Oeste")
 ```
+
+# Aspectos Estéticos
 
 ## Aspectos Estéticos
 
@@ -148,10 +151,10 @@ shape | Forma
 ## Representando dados
 
 ```{r}
-ggplot(feijao , aes(x = area_plantada, y = quantidade)) +
+ggplot(feijao,
+       aes(x = area_plantada, y = quantidade)) +
   geom_point()
 ```
-
 
 ## Representando dados
 
@@ -159,36 +162,32 @@ Imagine que você fosse desenhar um gráfico. Como você decidiria até onde dev
 
 Assim, o VBP pode ser representado no eixo vertical ou os faixas de valores podem aparecer como cores ou formas (até R$ 50 milhões: triângulos; entre 50 e 100: quadrados; e maiores que 100: circulos).
 
-
-## Aspectos Estéticos
+## Mapeando variáveis em estéticas
 
 É diferente **mapear** uma estética e **atribuir um valor** a um aspecto estético. Mapear uma variável em uma estética é dizer que a cor **vermelha** representa o Centro-Oeste e a cor **azul** o Sudeste. Isto é diferente de definir a cor de pontos ou barras como **verde**. 
 
-## Atributos Estéticos
-
-### Atribuir cor à elemento estético
+## Atributos Estéticos - Atribuir cor à elemento estético
 
 ```{r}
-ggplot(feijao , aes(x = area_plantada, y = quantidade)) +
+ggplot(feijao ,
+       aes(x = area_plantada, y = quantidade)) +
   geom_point(col = "indianred")
 ```
 
-## Aspectos Estéticos
-
-### Mapear a cultura na cor
+## Aspectos Estéticos - Mapear a cultura na cor
 
 ```{r}
-ggplot(feijao , aes(x = area_plantada, y = quantidade, col = regiao)) +
+ggplot(feijao , aes(x = area_plantada,
+                    y = quantidade, col = regiao)) +
   geom_point()
 ```
 
-## Aspectos Estéticos
-
-### Mapear VBP no tamanho
+## Aspectos Estéticos - Mapear VBP no tamanho
 
 ```{r}
 ggplot(feijao , aes(x = area_plantada, y = quantidade)) +
-  geom_point(aes(size = VBP), col = "darkgreen", alpha = 0.5)
+  geom_point(aes(size = VBP),
+             col = "darkgreen", alpha = 0.5)
 ```
 
 ## Aspectos Estéticos - Variáveis contínuas
@@ -211,9 +210,9 @@ Fonte: www.datacamp.com
 ## Aspectos Estéticos - Variáveis contínuas
 
 ```{r}
-ggplot(feijao, aes(x = Ano, y = area_plantada,
+ggplot(feijao, aes(x = area_plantada, y = quantidade,
                    col = produtividade)) +
-  geom_point(size = 3)
+  geom_point(size = 2)
 ```
 
 ## Aspectos Estéticos - Variáveis categóricas
@@ -237,8 +236,8 @@ Fonte: www.datacamp.com
 ## Aspectos Estéticos - Variáveis categóricas
 
 ```{r}
-ggplot(dados, aes(x = produtividade,
-                  y = (VBP/area_plantada), shape = cultura)) +
+ggplot(feijao,aes(x = area_plantada,
+                 y = quantidade, shape = cultura)) +
   geom_point()
 ```
 
@@ -246,12 +245,12 @@ ggplot(dados, aes(x = produtividade,
 ## Aspectos Estéticos - Variáveis categóricas
 
 ```{r}
-ggplot(dados, aes(x = produtividade, 
-                  y = (VBP/area_plantada), col = cultura)) +
+ggplot(feijao, aes(x = area_plantada, 
+                  y = quantidade, col = cultura)) +
   geom_point()
 ```
 
-## Aspectos Geométricos
+# Geometrias
 
 Além de ter dados e mapeá-los em atributos estéticos, você deve escolher com que geometrias quer aprensentar seus dados.
 
@@ -267,29 +266,23 @@ Vamos ver como usar estas geometrias no `ggplot2`.
 
 ## geom_point()
 
-Ajudam compreender relação entre variáveis e suas distribuições.
-
 ```{r geom_point}
-ggplot(feijao, aes(x = area_plantada, y = produtividade)) +
+ggplot(feijao, aes(x = area_plantada, y = quantidade)) +
   geom_point()
 ```
 
 ## geom_smooth()
 
-Realiza calculos de regressão e desenha a curva ou reta de regressão. O método da regressão pode ser escolhido com o parâmetro `method`.
-
 ```{r}
-ggplot(feijao , aes(x = area_plantada, y = quantidade)) +
+ggplot(feijao, aes(x = area_plantada, y = quantidade)) +
   geom_point() + 
   geom_smooth(aes(col = regiao), se = FALSE, method = "lm")
 ```
 
 ## geom_col() ou geom_bar()
 
-Gráficos de barras são geralmente usados em estatísticas sumarizadas.
-
 ```{r geom_bar}
-medias <- dados %>% group_by(cultura) %>%
+medias <- CO %>% group_by(cultura) %>%
   summarise(area_media = mean(area_plantada))
 ```
 
@@ -302,18 +295,17 @@ ggplot(medias, aes(x = cultura, y = area_media)) +
 
 ## geom_line() 
 
-Utilizadas para relacionar observações, dar ideia de evolução
-
 ```{r geom_line}
 ggplot(CO, aes(Ano, area_plantada)) +
-  geom_line(aes(col = cultura, group = cultura), size = 2)
+  geom_line(aes(col = cultura, group = cultura),
+            size = 2)
 ```
 
 ## geom_histogram()
 
 ```{r geom_histogram, warning=FALSE}
 ggplot(dados, aes(x = produtividade)) +
-  geom_histogram(fill = "indianred") # definir intervalos(binwidth)
+  geom_histogram(fill = "indianred") # definir intervalos
 ```
 
 ## Ou então geom_density()
@@ -333,55 +325,58 @@ ggplot(CO, aes(x = cultura, y = produtividade)) +
 ## ...ou geom_violin()
 
 ```{r}
-ggplot(CO, aes(x = cultura, y = produtividade, fill = cultura)) +
+ggplot(CO, aes(x = cultura, y = produtividade,
+               fill = cultura)) +
   geom_violin(draw_quantiles = 0.5)
 ```
 
 ## Exercícios
 
-1. Desenhe um gráfico de violino da produtividade com o conjunto de dados a sua escolha. Adicione uma camada representando as observações com pontos. Dê uma olhada em `?geom_fitter`, pode ser útil.
+1. Desenhe um gráfico de violino da produtividade com o conjunto de dados a sua escolha. Adicione uma camada representando as observações com pontos. Dê uma olhada em `?geom_jitter`, pode ser útil.
 
 2. Há grande diferença entre a relação área colhida / área plantada entre as regiões? E Entre as culturas? Responda construindo gráficos. Utilize o conjunto `dados` para esta questão.
+
+## Exercícios
 
 3. Desenhe um gráfico de dispersão com a produtividade em um eixo e a área plantada em outro. Utilize os dados de produção do feijão. Adicione uma reta de regressão para todo o conjunto de dados. Adicione nova camada com uma regressão para região (utilize a cor para diferenciar os grupos). A regressão geral representa bem a relação entre área e produtividade para os subconjuntos?
 
 Extra: Parta do mesmo gráfico de dispersão anterior (produtividade x área). Tente adiconar mais informações no mesmo gráfico mapeando outras variáveis. Busque identificar em que momento as informações idicionais poluem o gráfico.
 
-<!-- ## Soluções 1 -->
+## Soluções 1
 
-<!-- ```{r} -->
-<!-- ggplot(feijao, aes(x = regiao, y = produtividade, fill = regiao)) + -->
-<!--   geom_violin() +  -->
-<!--   geom_jitter() -->
-<!-- ``` -->
+```{r}
+ggplot(feijao, aes(x = regiao, y = produtividade, fill = regiao)) +
+  geom_violin() +
+  geom_jitter()
+```
 
-<!-- ## Soluções 2 -->
+## Soluções 2
 
-<!-- ```{r} -->
-<!-- ggplot(dados) + -->
-<!--   geom_density(aes(x = area_colhida / area_plantada, -->
-<!--                    fill = regiao)) + -->
-<!--   facet_wrap(~regiao) -->
+```{r}
+ggplot(dados) +
+  geom_density(aes(x = area_colhida / area_plantada,
+                   fill = regiao)) +
+  facet_wrap(~regiao)
 
-<!-- ggplot(dados, aes(x = cultura, -->
-<!--                   y = area_colhida / area_plantada)) + -->
-<!--   geom_point(alpha = 0.4, position = "jitter") -->
-<!-- ``` -->
+ggplot(dados, aes(x = cultura,
+                  y = area_colhida / area_plantada)) +
+  geom_point(alpha = 0.4, position = "jitter")
+```
 
-<!-- ## Soluções 3 -->
+## Soluções 3
 
-<!-- ```{r} -->
-<!-- ggplot(feijao, aes(x = area_plantada, y = produtividade)) + -->
-<!--   geom_point() + -->
-<!--   geom_smooth(aes(col = regiao), method = "lm", se = FALSE, size = 2) + -->
-<!--   geom_smooth(group = 1, col = "blue", method = "lm", se = FALSE) -->
-<!-- ``` -->
+```{r}
+ggplot(feijao, aes(x = area_plantada, y = produtividade)) +
+  geom_point() +
+  geom_smooth(aes(col = regiao), method = "lm", se = FALSE, size = 2) +
+  geom_smooth(group = 1, col = "blue", method = "lm", se = FALSE)
+```
 
-<!-- ## Extra -->
+## Extra
 
-<!-- ```{r diamonds, echo=FALSE} -->
-<!-- ggplot(dados, aes(x = produtividade, y = area_plantada, col = regiao)) + -->
-<!--   geom_point(aes(size = VBP)) + -->
-<!--   # geom_smooth(se = FALSE, method = "lm") + -->
-<!--   facet_wrap(~cultura, nrow = 2, scales = "free") -->
-<!-- ``` -->
+```{r diamonds, echo=FALSE}
+ggplot(dados, aes(x = produtividade, y = area_plantada, col = regiao)) +
+  geom_point(aes(size = VBP)) +
+  # geom_smooth(se = FALSE, method = "lm") +
+  facet_wrap(~cultura, nrow = 2, scales = "free")
+```

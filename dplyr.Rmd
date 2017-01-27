@@ -2,7 +2,12 @@
 title: "dplyr"
 author: "Isidio Martins e Tomás Barcellos"
 date: "`r format(Sys.time(), '%d %B %Y')`"
-output: ioslides_presentation
+output:     
+  beamer_presentation:
+    colortheme: crane
+    highlight: tango
+    slide_level: 2
+    theme: Malmoe
 ---
 
 ```{r setup, include=FALSE, echo=FALSE}
@@ -51,17 +56,17 @@ A sintaxe de uma função consiste no nome da função seguindo por parenteses, 
 toupper(x = "mapa") #Apresenta os caracteres em caixa alta
 ```
 
-## Shift
-Decorar o nome de cada função ou seus argumentos seria insano. A tecla Shift ajuda a elencar o que pode ser feito.
+## Tab
+Decorar o nome de cada função ou seus argumentos seria insano. A tecla Tab ajuda a elencar o que pode ser feito.
 
 * Encontrando funções:
-    + Tecle 'me' e depois Shift
+    + Tecle 'me' e depois Tab
 * Funções dentro de pacotes específicos:
-    + Tecle 'dplyr::' e depois Shift
+    + Tecle 'dplyr::' e depois Tab
 * Argumentos dentro de funções:
-    + Tecle 'dplyr::full_join()' e dentro dos parênteses tecle Shift
+    + Tecle 'dplyr::full_join()' e dentro dos parênteses tecle Tab
 
-##Antes do `dplyr`: O _Assignment Operator_ (Operador de atribuição: '<-')
+## Antes do `dplyr`: O _Assignment Operator_ (Operador de atribuição: '<-')
 O R opera com objetos. "Objeto é aonde você guarda o que quer". A sintaxe é: à esquerda do operador ("<-") dá-se nome ao objeto (um texto qualquer), à direita o elemento a ser inserido nele. Exemplos:
 ```{r}
 qualquercoisa<-c(1,2,3)
@@ -70,7 +75,7 @@ qualquercoisa<-"mapa"
 qualquercoisa
 ```
 
-##Antes do `dplyr`: O _Assignment Operator_ (Operador de atribuição: '<-')
+## Antes do `dplyr`: O _Assignment Operator_ (Operador de atribuição: '<-')
 
 Mais exemplos...
 
@@ -82,17 +87,17 @@ qualquercoisa<-toupper(x = qualquercoisa) # ....e depois realizar a operação
 qualquercoisa
 ```
 
-##Antes do `dplyr`: Caregando tabelas no R
+## Antes do `dplyr`: Caregando tabelas no R
 
 Localize seu diretório de trabalho com o comando `getwd()` e lá coloque os arquivos disponíveis em <https://github.com/tomasbarcellos/palestra-MAPA>.
 
-Se o interesse é o de ler dados externos estão começe escrevendo 'read' e teclando Shift. Surgirão várias funções para a leitura.
+Se o interesse é o de ler dados externos estão começe escrevendo 'read' e teclando Tab. Surgirão várias funções para a leitura.
 
 Opinião do autor: "Sempre que possível, use o ".csv". Apesar de mais pesado, é mais seguro para guardar informação e é lido por praticamente qualquer programa. Usemos o `read.csv2()`.
 
-##Antes do `dplyr`: Caregando tabelas
+## Antes do `dplyr`: Caregando tabelas
 
-Escreva `read.csv2("")` e clique entre as aspas e tecle shift. Surgirá uma lista de arquivos disponíveis no seu WD.
+Escreva `read.csv2("")` e clique entre as aspas e tecle Tab. Surgirá uma lista de arquivos disponíveis no seu WD.
 ```{r}
 PAM<-read.csv2("PAM.csv", stringsAsFactors = F) 
 #Sempre ponha stringsAsFactors = F, até o dia em que souber usar.
@@ -103,7 +108,7 @@ str(PAM)
 
 Para uma melhor viasualização da tabela carregada de o comando: `View(PAM)`
 
-##Antes do `dplyr`: Caregando tabelas
+## Antes do `dplyr`: Caregando tabelas
 
 Quando os dados estiverem em '.xls' ou '.xlsx', basta usar o pacote `readxl`.
 
@@ -113,7 +118,7 @@ PAM2<-readxl::read_excel("PAM.xlsx")
 str(PAM2)
 ```
 
-##Antes do `dplyr`: Pipe Operator '%>%'
+## Antes do `dplyr`: Pipe Operator '%>%'
 
 O pipe operator esta disponível no pacote `magrittr`. Outros pacotes tem o `magrittr` como seu dependente. Ou seja, carregam-no para poder operar. O pacote `dplyr` é um deles.
 
@@ -133,7 +138,7 @@ Dentre as contribuições de HW estão os pacotes `dplyr`, `ggplot2` e `tidyr`.
 
 O `dplyr` simplifica as tarefas de transformar um dataframe.
 
-##Instalando o `dplyr`
+## Instalando o `dplyr`
 
 Os pacotes não vem previamente instalados. Para instalar qualquer pacote deve-se usar o comando: `install.packages()`. Portanto, para instalar o dplyr, execute: `install.packages("dplyr")`
 
