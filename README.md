@@ -1,7 +1,14 @@
 # palestra-MAPA
 Repositório com apresentações da palestra de 27/01/2017
 
-# Os dados utilizados em ambas apresentações foi extraído com o código abaixo:
+## Dados utilizados
+
+### dplyr
+Os dados utilizados na apresentação do `dplyr` são `PAM.csv` e `PAM.xlsx`.
+
+### ggplot2
+
+Os dados utilizados na apresentação do ggplot2 foi extraído com o código abaixo:
 
 ```{r}
 library(devtools)
