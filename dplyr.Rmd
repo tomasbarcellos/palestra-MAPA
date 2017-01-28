@@ -1,13 +1,15 @@
 ---
 title: "dplyr"
 author: "Isidio Martins e Tomás Barcellos"
-date: "`r format(Sys.time(), '%d %B %Y')`"
-output:     
-  beamer_presentation:
-    colortheme: crane
-    highlight: tango
-    slide_level: 2
-    theme: Malmoe
+date: "27 de janeiro de 2017"
+output:
+    beamer_presentation:
+      colortheme: crane
+      fig_height: 4
+      fig_width: 9
+      highlight: tango
+      slide_level: 2
+      theme: Malmoe
 ---
 
 ```{r setup, include=FALSE, echo=FALSE}
@@ -15,13 +17,14 @@ knitr::opts_chunk$set(echo = TRUE)
 library(dplyr)
 library(magrittr)
 library(antitrust)
+library(readxl)
 ```
 
 ## Objetivo
 
-* Apresentar pacotes para a exploração dos dados que permitam o uso mais intuitivo do R
+* Apresentar pacotes para a exploração de dados. Estes permitirão um uso mais intuitivo do R.
 
-* O método é dinâmico: O participante deve replicar toda a programação apresentada
+* O método é dinâmico: O participante deve replicar toda a programação apresentada.
 
 ## Principais aspectos do R
 
@@ -30,19 +33,19 @@ library(antitrust)
 - Reprodutibilidade
 - Escala (looping)
 - Software Livre e Aberto com baixo uso de RAM
-- Pacotes: Nada mais são que um conjunto de funções
-      + Estes são o meio pelo qual o programa evolui e se adapta a necessidade dos usuários.
-- Flexibilidade
+- Pacotes: Nada mais que um conjunto de funções
+      + O programa evolui por meio dos pacotes
+- Flexibilidade para criar soluções
 - Comunidade (múltiplas formações acadêmicas)
 
 ## Linguagem de Programação R
 
-Não se tratam de funções inalteraveis, tudo pode ser reformulado. Observe o código da função que calcula o Índice de Hirschman-Herfindahl de concentração de mercado disponível no pacote antitrust, dê o comando (sem parenteses):
+Tudo pode ser reformulado! Observe o código da função que calcula a correlação entre dois vetores, dê o comando:
 ```{r eval=FALSE}
-antitrust::HHI
+cor
 ```
 
-* No R temos funções proprias do R-BASE, próprias do programador e de outros na forma de Pacotes
+* No R temos funções proprias do R-BASE, do programador e de outros na forma de Pacotes
 * Encontrando soluções
     + Help(),'?' e '??'
     + A comunidade do R é excepcional  
@@ -56,18 +59,19 @@ A sintaxe de uma função consiste no nome da função seguindo por parenteses, 
 toupper(x = "mapa") #Apresenta os caracteres em caixa alta
 ```
 
-## Tab
-Decorar o nome de cada função ou seus argumentos seria insano. A tecla Tab ajuda a elencar o que pode ser feito.
+## A tecla Shift
+Decorar o nome de cada função ou seus argumentos seria insano. A tecla Shift ajuda a elencar o que pode ser feito.
 
-* Encontrando funções:
-    + Tecle 'me' e depois Tab
-* Funções dentro de pacotes específicos:
-    + Tecle 'dplyr::' e depois Tab
-* Argumentos dentro de funções:
-    + Tecle 'dplyr::full_join()' e dentro dos parênteses tecle Tab
+* Encontrando funções, ex:
+    + Tecle 'me' e depois Shift
+* Funções dentro de pacotes específicos, ex:
+    + Tecle 'dplyr::' e depois Shift
+* Argumentos dentro de funções, ex:
+    + Tecle 'dplyr::full_join()' e dentro dos parênteses tecle Shift
 
-## Antes do `dplyr`: O _Assignment Operator_ (Operador de atribuição: '<-')
-O R opera com objetos. "Objeto é aonde você guarda o que quer". A sintaxe é: à esquerda do operador ("<-") dá-se nome ao objeto (um texto qualquer), à direita o elemento a ser inserido nele. Exemplos:
+## O _Assignment Operator_ (Operador de atribuição: '<-')
+O R opera com objetos. "Objeto é aonde você guarda o que quer".
+A sintaxe é: à esquerda do operador ("<-") dá-se nome ao objeto (um texto), à direita o elemento a ser inserido:
 ```{r}
 qualquercoisa<-c(1,2,3)
 qualquercoisa
@@ -75,54 +79,54 @@ qualquercoisa<-"mapa"
 qualquercoisa
 ```
 
-## Antes do `dplyr`: O _Assignment Operator_ (Operador de atribuição: '<-')
-
-Mais exemplos...
+## O _Assignment Operator_ (Operador de atribuição: '<-')
 
 ```{r}
 qualquercoisa<-toupper(x = "mapa")
 qualquercoisa
 qualquercoisa<-"mapa" #Podemos guardar em um objeto...
-qualquercoisa<-toupper(x = qualquercoisa) # ....e depois realizar a operação
+qualquercoisa<-toupper(x = qualquercoisa) # ....e depois realizar operação
 qualquercoisa
 ```
 
-## Antes do `dplyr`: Caregando tabelas no R
+## Caregando tabelas no R
 
 Localize seu diretório de trabalho com o comando `getwd()` e lá coloque os arquivos disponíveis em <https://github.com/tomasbarcellos/palestra-MAPA>.
 
-Se o interesse é o de ler dados externos estão começe escrevendo 'read' e teclando Tab. Surgirão várias funções para a leitura.
+Escreva 'read' e tecle Shift. Surgirão várias funções para a leitura de dados externos.
 
-Opinião do autor: "Sempre que possível, use o ".csv". Apesar de mais pesado, é mais seguro para guardar informação e é lido por praticamente qualquer programa. Usemos o `read.csv2()`.
+Opinião: "Sempre que possível, use o ".csv". Apesar de mais pesado, é mais seguro para guardar informação e é lido por praticamente qualquer programa. Usemos o `read.csv2()`.
 
-## Antes do `dplyr`: Caregando tabelas
+## Caregando tabelas (.csv)
 
-Escreva `read.csv2("")` e clique entre as aspas e tecle Tab. Surgirá uma lista de arquivos disponíveis no seu WD.
+Escreva `read.csv2("")`, clique entre as aspas e tecle Shift. Surgirão os arquivos disponíveis no seu WD.
 ```{r}
-PAM<-read.csv2("PAM.csv", stringsAsFactors = F) 
-#Sempre ponha stringsAsFactors = F, até o dia em que souber usar.
-str(PAM) 
-#Reparem nos nomes das variaveis, nas classes e no padrão das amostras 
-#(ver: aspas nas strings).
+PAM<-read.csv2("PAM.csv", stringsAsFactors = F,
+               encoding = "UTF-8") 
+#Sempre use stringsAsFactors = F, até o dia em que souber usar.
 ```
 
 Para uma melhor viasualização da tabela carregada de o comando: `View(PAM)`
 
-## Antes do `dplyr`: Caregando tabelas
-
-Quando os dados estiverem em '.xls' ou '.xlsx', basta usar o pacote `readxl`.
-
+## Estrutura da tabela
 ```{r}
-library(readxl)
-PAM2<-readxl::read_excel("PAM.xlsx")
-str(PAM2)
+str(PAM) # Nomes das variáreis, classes, amostras. Obs: Aspas nas strings.
 ```
 
-## Antes do `dplyr`: Pipe Operator '%>%'
+## Caregando tabelas (.xls e .xlsx)
 
-O pipe operator esta disponível no pacote `magrittr`. Outros pacotes tem o `magrittr` como seu dependente. Ou seja, carregam-no para poder operar. O pacote `dplyr` é um deles.
+O pacote `readxl` tem sido a melhor solução.
 
-O pipe inverte a lógica de se primeiro determinar qual o função a ser usada para depois escolher o objeto a ser transformado. Ou seja, tal como a realidade, parte-se do objeto a ser analisado para a exploração (cálculos e transformações). 
+```{r}
+PAM2<-readxl::read_excel("PAM.xlsx")
+head(PAM2,4) # Apresenta os primeiros valores
+```
+
+## Pipe Operator '%>%'
+
+O pipe operator está disponível no pacote `magrittr`. Outros pacotes tem o `magrittr` como dependente. Ou seja, carregam-no para poder operar. O pacote `dplyr` é um deles.
+
+O pipe inverte a lógica de se primeiro determinar qual a função a ser usada para depois escolher o objeto a ser transformado. Ou seja, tal como a realidade, parte-se do objeto a ser analisado para a exploração (cálculos e transformações). 
 
 ```{r, echo=TRUE}
 library(magrittr)
@@ -131,22 +135,21 @@ library(magrittr)
 
 ## O `dplyr`
 
-Trata-se de um pacote disponibilizado por Hadley Wickham:
-![](https://pbs.twimg.com/profile_images/677589103710306304/m56O6Wgf.jpg)
-
-Dentre as contribuições de HW estão os pacotes `dplyr`, `ggplot2` e `tidyr`.
+Trata-se de um pacote disponibilizado por Hadley Wickham. Dentre as contribuições de HW estão os pacotes `dplyr`, `ggplot2` e `tidyr`.
 
 O `dplyr` simplifica as tarefas de transformar um dataframe.
 
 ## Instalando o `dplyr`
 
-Os pacotes não vem previamente instalados. Para instalar qualquer pacote deve-se usar o comando: `install.packages()`. Portanto, para instalar o dplyr, execute: `install.packages("dplyr")`
+Os pacotes não vem previamente instalados. Para instalar qualquer pacote deve-se usar o comando: `install.packages()`. 
+
+Portanto, para instalar o dplyr, execute: `install.packages("dplyr")`
 
 É possível também instalar o pacote por meio de um arquivo .zip disponivel em <https://cran.r-project.org/>.
 
 Dê o comando `library(dplyr)` para carregar o pacote.
 
-## Operadores básicos
+## Operadores básicos do `dplyr`
 
 |Comando                                     |Ação                                                          |
 |--------------------------------------------|--------------------------------------------------------------|
@@ -168,7 +171,7 @@ p1 <- PAM %>%
          Rendimento.médio.da.produção)
 ```
 
-O resultado esta sendo guerdado no objeto `p1` (passo 1)
+O resultado está sendo guardado no objeto `p1` (passo 1)
 
 ## Passo 1
 
@@ -177,7 +180,6 @@ Para uma melhor vizualização dê o comando: `View(p1)`. Notem os valores `NA`.
 ```{r echo=FALSE}
 knitr::kable(head(p1,4))
 ```
-
 
 ## Passo 2
 Filtre por ano e cultura:
@@ -229,6 +231,9 @@ E os cálculos são realizados para cada tabela. Por exemplo, a idade média dos
 |--|----|-----|
 |02|M   |20   |
 |03|M   |40   |
+  
+
+Para realizar uma soma esse procedimento parece exagerado. Mas no último exemplo podemos mostrar q ele pode ser bem útil.
 
 ## Passo 3
 
@@ -301,9 +306,9 @@ knitr::kable(head(p5,4))
 
 O padrão de análise que realizamos anteriormente é recorrente. Mais conhecido como "Split, Apply and Combine" (SAC). No passo 3 dividimos o dataframe pela variável região, aplicamos uma função sobre uma das variaveis em cada parte sepradamente combinando os resultados na forma de uma nova variavel.
 
-## Exercicio 2
+## Exercício 2
 
-Agora é com vocês, cheguem no resultado abaixo. Se não conhecem alguma função, usem os meios de busca elencados bem como o google com a tag [R].
+Agora é com vocês, cheguem no resultado abaixo. Se não conhecem alguma função, usem os meios de busca elencados, bem como o google com a tag [R].
 
 A quantidade produzida anual de Laranja desde 2010 na região sul:
 
@@ -318,15 +323,32 @@ ex2<-
 #Nada me impede de mudar a ordem dos comandos
 ```
 ```{r echo=FALSE}
-knitr::kable(ex2)
+knitr::kable(head(ex2,4))
 ```
 
-## Exercicio 3
+## Exercício 3
+
+A média das produtividades anuais da Manga, por região.
+
+```{r echo=FALSE}
+ex3<-
+  PAM %>%
+  select(ano_desc,regiao_desc,cultura_desc,
+         Rendimento.médio.da.produção) %>%
+  filter(cultura_desc=="Manga") %>%
+  group_by(regiao_desc) %>%
+  summarise(Média=mean(Rendimento.médio.da.produção))
+```
+```{r echo=FALSE}
+knitr::kable(ex3)
+```
+
+## Exercício 4
 
 O coeficiente de variação (usa o google!! você terá de criar a função) das produtividades anuais da Manga, por região.
 
 ```{r echo=FALSE}
-ex3<-
+ex4<-
   PAM %>%
   select(ano_desc,regiao_desc,cultura_desc,
          Rendimento.médio.da.produção) %>%
@@ -336,16 +358,16 @@ ex3<-
               mean(Rendimento.médio.da.produção))
 ```
 ```{r echo=FALSE}
-knitr::kable(ex3)
+knitr::kable(ex4)
 ```
 
-## Exercicio 4
+## Exercício 5
 
 O valor da produção no ano de 2013 para as culturas de Uva e Abacaxi:
 
 Dica: Para filtrar por vários valores siga o padrão: 'cultura_desc %in% c("Uva","Abacaxi")'
 ```{r echo=FALSE}
-ex4<-
+ex5<-
   PAM %>% 
   select(ano_desc,cultura_desc,Valor.da.produção) %>%
   filter(cultura_desc %in% c("Uva","Abacaxi"),
@@ -354,5 +376,62 @@ ex4<-
   summarise(Valor=sum(Valor.da.produção))
 ```
 ```{r echo=FALSE}
-knitr::kable(ex4)
+knitr::kable(ex5)
+```
+
+## Exercício 6
+
+O valor da produção por região, nos anos de 2010 e 2015
+```{r echo=FALSE}
+ex6<-
+  PAM %>% 
+  select(ano_desc,regiao_desc,Valor.da.produção) %>%
+  filter(ano_desc %in% c(2010,2015)) %>%
+  group_by(regiao_desc,ano_desc) %>%
+  summarise(Valor=sum(Valor.da.produção, na.rm=T))
+```
+
+```{r echo=FALSE}
+knitr::kable(head(ex6))
+```
+
+## Exercício 7
+
+Calcule o coeficiente de correlação entre o valor da produção e a área destinada à colheita para as culturas de Café (em grão) Arábica e laranja.
+
+```{r echo=FALSE}
+ex7<-
+  PAM %>% 
+  select(ano_desc,cultura_desc,Valor.da.produção,Área.destinada.à.colheita) %>%
+  filter(cultura_desc %in% c("Café (em grão) Arábica","Laranja")) %>%
+  group_by(cultura_desc) %>%
+  summarise(COR=cor(Valor.da.produção,Área.destinada.à.colheita))
+```
+```{r echo=FALSE}
+knitr::kable(ex7)
+```
+
+## Exercício Final (Very Hard)
+
+Calcule os betas estimados da regressão entre o valor da produção e a área destinada à colheita para as culturas de Café (em grão) Arábica e laranja.
+
+```{r}
+BETA<-function(x,y){
+  LM<-lm(x~y)
+  LM<-LM$coefficients
+  LM<-as.numeric(LM[2])
+  LM
+}
+ex.final<-
+  PAM %>% 
+  select(ano_desc,cultura_desc,Valor.da.produção,
+         Área.destinada.à.colheita) %>%
+  filter(cultura_desc %in% c("Café (em grão) Arábica","Laranja")) %>%
+  group_by(cultura_desc) %>%
+  summarise(Beta=BETA(Valor.da.produção,Área.destinada.à.colheita))
+```
+
+## Exercício Final (Very Hard)
+```{r echo=FALSE}
+knitr::kable(ex.final)
 ```

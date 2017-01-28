@@ -1,5 +1,7 @@
 ---
 title: ggplot2
+author: "Isidio Martins e Tomás Barcellos"
+date: "27 de janeiro de 2017"
 output:
     beamer_presentation:
       colortheme: crane
@@ -122,6 +124,7 @@ O arquivo "amostra-PAM.RDS" traz dados de `r length(unique(dados$cultura))` cult
 Para faciliar as coisas vamos reduzir nossos dados apenas para as culturas de **arroz**, **feijão**, **milho** e **soja** (grãos) com o código abaixo. 
 
 ```{r transforma}
+library(dplyr)
 dados <- dados %>% 
   filter(cultura %in% 
            c("Arroz (em casca)", "Feijão (em grão)",
@@ -164,7 +167,9 @@ Assim, o VBP pode ser representado no eixo vertical ou os faixas de valores pode
 
 ## Mapeando variáveis em estéticas
 
-É diferente **mapear** uma estética e **atribuir um valor** a um aspecto estético. Mapear uma variável em uma estética é dizer que a cor **vermelha** representa o Centro-Oeste e a cor **azul** o Sudeste. Isto é diferente de definir a cor de pontos ou barras como **verde**. 
+É diferente **mapear** uma estética e **atribuir um valor** a um aspecto estético. Mapear uma variável em uma estética é dizer que a cor **vermelha** representa o Centro-Oeste e a cor **azul** o Sudeste. Isto é diferente de definir a cor de pontos ou barras como **verde**. Para poder fazer isso, precisamos carregar o pacote `ggplot2`
+
+`libarry(ggplot2)`
 
 ## Atributos Estéticos - Atribuir cor à elemento estético
 
@@ -342,7 +347,7 @@ ggplot(CO, aes(x = cultura, y = produtividade,
 
 Extra: Parta do mesmo gráfico de dispersão anterior (produtividade x área). Tente adiconar mais informações no mesmo gráfico mapeando outras variáveis. Busque identificar em que momento as informações idicionais poluem o gráfico.
 
-## Soluções 1
+## Solução 1
 
 ```{r}
 ggplot(feijao, aes(x = regiao, y = produtividade, fill = regiao)) +
@@ -350,26 +355,45 @@ ggplot(feijao, aes(x = regiao, y = produtividade, fill = regiao)) +
   geom_jitter()
 ```
 
-## Soluções 2
+## Soluções 2 - a
 
 ```{r}
 ggplot(dados) +
   geom_density(aes(x = area_colhida / area_plantada,
                    fill = regiao)) +
   facet_wrap(~regiao)
+```
 
+## Soluções 2 - b
+
+```{r}
 ggplot(dados, aes(x = cultura,
                   y = area_colhida / area_plantada)) +
   geom_point(alpha = 0.4, position = "jitter")
 ```
 
-## Soluções 3
+## Solução 3
 
-```{r}
-ggplot(feijao, aes(x = area_plantada, y = produtividade)) +
+```{r, eval = FALSE}
+ggplot(feijao, aes(x = area_plantada,
+                   y = produtividade)) +
   geom_point() +
-  geom_smooth(aes(col = regiao), method = "lm", se = FALSE, size = 2) +
-  geom_smooth(group = 1, col = "blue", method = "lm", se = FALSE)
+  geom_smooth(aes(col = regiao),method = "lm",
+              se = FALSE, size = 2) +
+  geom_smooth(group = 1, col = "blue",
+              method = "lm", se = FALSE)
+```
+
+## Solução 3
+
+```{r, echo  = FALSE}
+ggplot(feijao, aes(x = area_plantada,
+                   y = produtividade)) +
+  geom_point() +
+  geom_smooth(aes(col = regiao),method = "lm",
+              se = FALSE, size = 2) +
+  geom_smooth(group = 1, col = "blue",
+              method = "lm", se = FALSE)
 ```
 
 ## Extra
@@ -377,6 +401,5 @@ ggplot(feijao, aes(x = area_plantada, y = produtividade)) +
 ```{r diamonds, echo=FALSE}
 ggplot(dados, aes(x = produtividade, y = area_plantada, col = regiao)) +
   geom_point(aes(size = VBP)) +
-  # geom_smooth(se = FALSE, method = "lm") +
   facet_wrap(~cultura, nrow = 2, scales = "free")
 ```
